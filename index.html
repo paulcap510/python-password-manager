@@ -1,0 +1,209 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Password Manager</title>
+  </head>
+  <body>
+    <h1>Password Manager</h1>
+
+    <div>
+      <label for="master-password">Master Password:</label>
+      <input
+        type="password"
+        id="master-password"
+        placeholder="Master password"
+      />
+    </div>
+
+    <button id="createBtn" type="button">Create Vault</button>
+    <button id="unlockBtn" type="button">Unlock</button>
+
+    <h2>Add New Entry</h2>
+    <div>
+      <label for="entry-site">Site:</label>
+      <input type="text" id="entry-site" placeholder="e.g. gmail.com" />
+    </div>
+    <div>
+      <label for="entry-username">Username:</label>
+      <input type="text" id="entry-username" placeholder="username" />
+    </div>
+    <div>
+      <label for="entry-password">Password:</label>
+      <input type="password" id="entry-password" placeholder="password" />
+    </div>
+    <button id="addEntryBtn" type="button">Add Entry</button>
+
+    <h2>Entries</h2>
+    <div id="entriesList"></div>
+
+    <p id="output"></p>
+
+    <script>
+      let editingEntryId = null;
+      let revealedPasswordId = null;
+
+      async function copyToClipboard(text) {
+        await navigator.clipboard.writeText(text);
+      }
+
+      function renderEntries(entries) {
+        const container = document.getElementById('entriesList');
+        container.innerHTML = '';
+
+        const table = document.createElement('table');
+
+        const headerRow = document.createElement('tr');
+        ['Site', 'Username', 'Password', 'Actions'].forEach((label) => {
+          const th = document.createElement('th');
+          th.innerText = label;
+          headerRow.appendChild(th);
+        });
+        table.appendChild(headerRow);
+
+        entries.forEach((entry) => {
+          const row = document.createElement('tr');
+
+          if (editingEntryId === entry.id) {
+            // EDIT MODE
+            const siteCell = document.createElement('td');
+            const siteInput = document.createElement('input');
+            siteInput.value = entry.site;
+            siteCell.appendChild(siteInput);
+
+            const usernameCell = document.createElement('td');
+            const usernameInput = document.createElement('input');
+            usernameInput.value = entry.username;
+            usernameCell.appendChild(usernameInput);
+
+            const passwordCell = document.createElement('td');
+            const passwordInput = document.createElement('input');
+            passwordInput.value = entry.password;
+            passwordCell.appendChild(passwordInput);
+
+            const actionsCell = document.createElement('td');
+            const saveBtn = document.createElement('button');
+            saveBtn.innerText = 'Save';
+            saveBtn.addEventListener('click', async () => {
+              const result = await pywebview.api.edit_entry(
+                entry.id,
+                siteInput.value,
+                usernameInput.value,
+                passwordInput.value,
+              );
+              editingEntryId = null;
+              renderEntries(result.entries);
+            });
+
+            const cancelBtn = document.createElement('button');
+            cancelBtn.innerText = 'Cancel';
+            cancelBtn.addEventListener('click', () => {
+              editingEntryId = null;
+              renderEntries(entries);
+            });
+
+            actionsCell.appendChild(saveBtn);
+            actionsCell.appendChild(cancelBtn);
+
+            row.appendChild(siteCell);
+            row.appendChild(usernameCell);
+            row.appendChild(passwordCell);
+            row.appendChild(actionsCell);
+          } else {
+            // NORMAL MODE
+            const siteCell = document.createElement('td');
+            siteCell.innerText = entry.site;
+
+            const usernameCell = document.createElement('td');
+            usernameCell.innerText = entry.username;
+            const copyUsernameBtn = document.createElement('button');
+            copyUsernameBtn.innerText = '📋';
+            copyUsernameBtn.addEventListener('click', async () => {
+              await copyToClipboard(entry.username);
+            });
+            usernameCell.appendChild(copyUsernameBtn);
+
+            const passwordCell = document.createElement('td');
+            const isRevealed = revealedPasswordId === entry.id;
+            passwordCell.innerText = isRevealed ? entry.password : '••••••••';
+
+            const eyeBtn = document.createElement('button');
+            eyeBtn.innerText = isRevealed ? '🙈' : '👁️';
+            eyeBtn.addEventListener('click', () => {
+              revealedPasswordId = isRevealed ? null : entry.id;
+              renderEntries(entries);
+            });
+
+            const copyPasswordBtn = document.createElement('button');
+            copyPasswordBtn.innerText = '📋';
+            copyPasswordBtn.addEventListener('click', async () => {
+              await copyToClipboard(entry.password);
+            });
+
+            passwordCell.appendChild(eyeBtn);
+            passwordCell.appendChild(copyPasswordBtn);
+
+            const actionsCell = document.createElement('td');
+            const editBtn = document.createElement('button');
+            editBtn.innerText = 'Edit';
+            editBtn.addEventListener('click', () => {
+              editingEntryId = entry.id;
+              renderEntries(entries);
+            });
+
+            const deleteBtn = document.createElement('button');
+            deleteBtn.innerText = 'Delete';
+            deleteBtn.addEventListener('click', async () => {
+              const result = await pywebview.api.delete_entry(entry.id);
+              renderEntries(result.entries);
+            });
+
+            actionsCell.appendChild(editBtn);
+            actionsCell.appendChild(deleteBtn);
+
+            row.appendChild(siteCell);
+            row.appendChild(usernameCell);
+            row.appendChild(passwordCell);
+            row.appendChild(actionsCell);
+          }
+
+          table.appendChild(row);
+        });
+
+        container.appendChild(table);
+      }
+
+      document
+        .getElementById('createBtn')
+        .addEventListener('click', async () => {
+          const password = document.getElementById('master-password').value;
+          const result = await pywebview.api.create_vault(password);
+          document.getElementById('output').innerText = result.message;
+          renderEntries(result.entries);
+        });
+
+      document
+        .getElementById('unlockBtn')
+        .addEventListener('click', async () => {
+          const password = document.getElementById('master-password').value;
+          const result = await pywebview.api.unlock(password);
+          document.getElementById('output').innerText = result.message;
+          renderEntries(result.entries);
+        });
+
+      document
+        .getElementById('addEntryBtn')
+        .addEventListener('click', async () => {
+          const site = document.getElementById('entry-site').value;
+          const username = document.getElementById('entry-username').value;
+          const password = document.getElementById('entry-password').value;
+          const result = await pywebview.api.add_entry(
+            site,
+            username,
+            password,
+          );
+          document.getElementById('output').innerText = result.message;
+          renderEntries(result.entries);
+        });
+    </script>
+  </body>
+</html>

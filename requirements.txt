@@ -1,0 +1,15 @@
+argon2-cffi==25.1.0
+argon2-cffi-bindings==25.1.0
+bottle==0.13.4
+cffi==2.1.1
+cryptography==50.0.0
+proxy_tools==0.1.0
+pycparser==3.0
+pyobjc-core==12.2.2
+pyobjc-framework-Cocoa==12.2.2
+pyobjc-framework-Quartz==12.2.2
+pyobjc-framework-Security==12.2.2
+pyobjc-framework-UniformTypeIdentifiers==12.2.2
+pyobjc-framework-WebKit==12.2.2
+pywebview==6.2.1
+typing_extensions==4.16.0
