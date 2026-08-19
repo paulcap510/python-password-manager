@@ -14,3 +14,4 @@ pyobjc-framework-WebKit==12.2.2
 pyperclip==1.11.0
 pywebview==6.2.1
 typing_extensions==4.16.0
+zxcvbn==4.5.0

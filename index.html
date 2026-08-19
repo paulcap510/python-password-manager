@@ -30,6 +30,7 @@
     <div>
       <label for="entry-password">Password:</label>
       <input type="password" id="entry-password" placeholder="password" />
+      <p id="passwordStrength"></p>
     </div>
     <button id="addEntryBtn" type="button">Add Entry</button>
     <p id="duplicateWarning" style="color: red"></p>
@@ -199,6 +200,19 @@
           ? 'An entry for this site and username already exists'
           : '';
       }
+
+      document
+        .getElementById('entry-password')
+        .addEventListener('input', async () => {
+          const password = document.getElementById('entry-password').value;
+          const result = await pywebview.api.check_password_strength(password);
+          const strengthEl = document.getElementById('passwordStrength');
+
+          const labels = ['Very Weak', 'Weak', 'Fair', 'Good', 'Strong'];
+          strengthEl.innerText = password
+            ? `${labels[result.score]}${result.feedback ? ' — ' + result.feedback : ''}`
+            : '';
+        });
 
       document
         .getElementById('entry-site')

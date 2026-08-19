@@ -10,6 +10,9 @@ import pyperclip
 import threading
 import time
 
+
+from zxcvbn import zxcvbn
+
 VAULT_FILE = "vault.dat"
 SALT_SIZE = 16
 NONCE_SIZE = 12
@@ -170,6 +173,19 @@ class Api:
 
         threading.Thread(target=clear_later, daemon=True).start()
         return {"message": "Copied to clipboard"}
+
+    def check_password_strength(self, password):
+        if not password:
+            return {"score": 0, "feedback": ""}
+
+        result = zxcvbn(password)
+        score = result["score"]
+        warning = result["feedback"]["warning"]
+        suggestions = result["feedback"]["suggestions"]
+
+        feedback = warning if warning else (suggestions[0] if suggestions else "")
+
+        return {"score": score, "feedback": feedback}
 
 
 api = Api()
