@@ -27,6 +27,10 @@ def derive_key(password: str, salt: bytes) -> bytes:
     )
 
 
+def secure_file_permissions():
+    os.chmod(VAULT_FILE, 0o600)
+
+
 class Api:
     def _is_unlocked(self):
         return hasattr(self, "key")
@@ -42,6 +46,7 @@ class Api:
             f.write(salt)
             f.write(nonce)
             f.write(encrypted)
+        secure_file_permissions()
         return {"message": "Vault created successfully", "entries": []}
 
     def unlock(self, password):
@@ -85,7 +90,7 @@ class Api:
             f.write(salt)
             f.write(nonce)
             f.write(encrypted)
-
+        secure_file_permissions()
         return {"message": "Entry deleted", "entries": self.entries}
 
     def edit_entry(self, entry_id, site=None, username=None, password=None):
@@ -113,7 +118,7 @@ class Api:
             f.write(salt)
             f.write(nonce)
             f.write(encrypted)
-
+        secure_file_permissions()
         return {"message": "Entry updated", "entries": self.entries}
 
     def add_entry(self, site, username, password):
@@ -145,7 +150,7 @@ class Api:
             f.write(salt)
             f.write(nonce)
             f.write(encrypted)
-
+        secure_file_permissions()
         return {"message": f"Entry added with id {entry_id}", "entries": self.entries}
 
     def lock(self):
