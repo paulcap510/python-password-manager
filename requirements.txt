@@ -11,5 +11,6 @@ pyobjc-framework-Quartz==12.2.2
 pyobjc-framework-Security==12.2.2
 pyobjc-framework-UniformTypeIdentifiers==12.2.2
 pyobjc-framework-WebKit==12.2.2
+pyperclip==1.11.0
 pywebview==6.2.1
 typing_extensions==4.16.0

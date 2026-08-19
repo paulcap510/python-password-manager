@@ -45,7 +45,17 @@
       let currentEntries = [];
 
       async function copyToClipboard(text) {
-        await navigator.clipboard.writeText(text);
+        await pywebview.api.copy_to_clipboard(text);
+
+        setTimeout(async () => {
+          try {
+            const currentClipboard = await navigator.clipboard.readText();
+            if (currentClipboard === text) {
+              await navigator.clipboard.writeText('');
+            } else {
+            }
+          } catch (err) {}
+        }, 5000);
       }
 
       function renderEntries(entries) {

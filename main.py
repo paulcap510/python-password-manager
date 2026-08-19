@@ -6,6 +6,10 @@ from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from cryptography.exceptions import InvalidTag
 import uuid
 
+import pyperclip
+import threading
+import time
+
 VAULT_FILE = "vault.dat"
 SALT_SIZE = 16
 NONCE_SIZE = 12
@@ -150,6 +154,17 @@ class Api:
         if hasattr(self, "entries"):
             del self.entries
         return {"message": "Vault locked"}
+
+    def copy_to_clipboard(self, text):
+        pyperclip.copy(text)
+
+        def clear_later():
+            time.sleep(5)
+            if pyperclip.paste() == text:
+                pyperclip.copy("")
+
+        threading.Thread(target=clear_later, daemon=True).start()
+        return {"message": "Copied to clipboard"}
 
 
 api = Api()
