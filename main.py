@@ -10,8 +10,10 @@ import pyperclip
 import threading
 import time
 
-
 from zxcvbn import zxcvbn
+
+import secrets
+import string
 
 VAULT_FILE = "vault.dat"
 SALT_SIZE = 16
@@ -186,6 +188,10 @@ class Api:
         feedback = warning if warning else (suggestions[0] if suggestions else "")
 
         return {"score": score, "feedback": feedback}
+
+    def generate_password(self, length=16):
+        alphabet = string.ascii_letters + string.digits + "!@#$%^&*()-_=+"
+        return {"password": "".join(secrets.choice(alphabet) for _ in range(length))}
 
 
 api = Api()

@@ -30,8 +30,15 @@
     <div>
       <label for="entry-password">Password:</label>
       <input type="password" id="entry-password" placeholder="password" />
+      <button id="generatePasswordBtn" type="button">Generate Password</button>
       <p id="passwordStrength"></p>
     </div>
+
+    <div id="generatedPasswordDisplay" style="display: none">
+      <span id="generatedPasswordText"></span>
+      <button id="useGeneratedBtn" type="button">Use This</button>
+    </div>
+
     <button id="addEntryBtn" type="button">Add Entry</button>
     <p id="duplicateWarning" style="color: red"></p>
 
@@ -53,10 +60,9 @@
             const currentClipboard = await navigator.clipboard.readText();
             if (currentClipboard === text) {
               await navigator.clipboard.writeText('');
-            } else {
             }
           } catch (err) {}
-        }, 15000); //set at 15 seconds
+        }, 15000); // set at 15 seconds
       }
 
       function renderEntries(entries) {
@@ -254,7 +260,7 @@
           renderEntries(result.entries);
         });
 
-      //! Lock timer to log the screen after inactivity = initially set to 10 sec for testing
+      //! Lock timer to lock the screen after inactivity — set to 10 sec for testing
       let lockTimer = null;
 
       function resetLockTimer() {
@@ -269,6 +275,30 @@
 
       document.addEventListener('click', resetLockTimer);
       document.addEventListener('keydown', resetLockTimer);
+
+      document
+        .getElementById('generatePasswordBtn')
+        .addEventListener('click', async () => {
+          const result = await pywebview.api.generate_password();
+          document.getElementById('generatedPasswordText').innerText =
+            result.password;
+          document.getElementById('generatedPasswordDisplay').style.display =
+            'block';
+        });
+
+      document
+        .getElementById('useGeneratedBtn')
+        .addEventListener('click', () => {
+          const generatedPassword = document.getElementById(
+            'generatedPasswordText',
+          ).innerText;
+          document.getElementById('entry-password').value = generatedPassword;
+          document
+            .getElementById('entry-password')
+            .dispatchEvent(new Event('input'));
+          document.getElementById('generatedPasswordDisplay').style.display =
+            'none';
+        });
     </script>
   </body>
 </html>
