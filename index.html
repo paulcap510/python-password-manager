@@ -204,6 +204,22 @@
           document.getElementById('output').innerText = result.message;
           renderEntries(result.entries);
         });
+
+      //! Lock timer to log the screen after inactivity = initially set to 10 sec for testing
+      let lockTimer = null;
+
+      function resetLockTimer() {
+        if (lockTimer) clearTimeout(lockTimer);
+        lockTimer = setTimeout(async () => {
+          await pywebview.api.lock();
+          document.getElementById('entriesList').innerHTML = '';
+          document.getElementById('output').innerText =
+            'Vault auto-locked due to inactivity';
+        }, 10000);
+      }
+
+      document.addEventListener('click', resetLockTimer);
+      document.addEventListener('keydown', resetLockTimer);
     </script>
   </body>
 </html>

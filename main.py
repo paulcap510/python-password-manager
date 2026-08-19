@@ -136,6 +136,13 @@ class Api:
 
         return {"message": f"Entry added with id {entry_id}", "entries": self.entries}
 
+    def lock(self):
+        if hasattr(self, "key"):
+            del self.key
+        if hasattr(self, "entries"):
+            del self.entries
+        return {"message": "Vault locked"}
+
 
 api = Api()
 webview.create_window("Password Manager", "index.html", js_api=api)
