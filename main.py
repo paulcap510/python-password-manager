@@ -116,6 +116,14 @@ class Api:
         if not self._is_unlocked():
             return {"message": "Please unlock the vault first", "entries": []}
 
+        #! This checks for identical usernames and websites only; addition to FE check
+        for entry in self.entries:
+            if entry["site"] == site and entry["username"] == username:
+                return {
+                    "message": "An entry for this site and username already exists",
+                    "entries": self.entries,
+                }
+
         entry_id = str(uuid.uuid4())
         self.entries.append(
             {"id": entry_id, "site": site, "username": username, "password": password}

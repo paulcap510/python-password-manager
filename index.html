@@ -32,6 +32,7 @@
       <input type="password" id="entry-password" placeholder="password" />
     </div>
     <button id="addEntryBtn" type="button">Add Entry</button>
+    <p id="duplicateWarning" style="color: red"></p>
 
     <h2>Entries</h2>
     <div id="entriesList"></div>
@@ -41,12 +42,14 @@
     <script>
       let editingEntryId = null;
       let revealedPasswordId = null;
+      let currentEntries = [];
 
       async function copyToClipboard(text) {
         await navigator.clipboard.writeText(text);
       }
 
       function renderEntries(entries) {
+        currentEntries = entries;
         const container = document.getElementById('entriesList');
         container.innerHTML = '';
 
@@ -171,6 +174,28 @@
 
         container.appendChild(table);
       }
+
+      function checkDuplicateLive() {
+        const site = document.getElementById('entry-site').value;
+        const username = document.getElementById('entry-username').value;
+        const warningEl = document.getElementById('duplicateWarning');
+
+        const isDuplicate = currentEntries.some(
+          (entry) =>
+            entry.site === site && entry.username === username && site !== '',
+        );
+
+        warningEl.innerText = isDuplicate
+          ? 'An entry for this site and username already exists'
+          : '';
+      }
+
+      document
+        .getElementById('entry-site')
+        .addEventListener('input', checkDuplicateLive);
+      document
+        .getElementById('entry-username')
+        .addEventListener('input', checkDuplicateLive);
 
       document
         .getElementById('createBtn')
