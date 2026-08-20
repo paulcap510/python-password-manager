@@ -230,5 +230,6 @@ class Api:
 
 
 api = Api()
-webview.create_window("Password Manager", "index.html", js_api=api)
+webview.create_window("Password Manager", "http://localhost:5173", js_api=api)
+# webview.create_window("Password Manager", "index.html", js_api=api)
 webview.start()
