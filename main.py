@@ -79,6 +79,13 @@ class Api:
         return {"message": "Vault created successfully", "entries": []}
 
     def unlock(self, password):
+        if hasattr(self, "lockout_until") and time.time() < self.lockout_until:
+            remaining = int(self.lockout_until - time.time())
+            return {
+                "message": f"Too many failed attempts. Try again in {remaining} seconds.",
+                "entries": [],
+            }
+
         try:
             with open(VAULT_FILE, "rb") as f:
                 data = f.read()
@@ -98,8 +105,12 @@ class Api:
             vault_data = json.loads(decrypted)
             self.key = key
             self.entries = vault_data
+            self.failed_attempts = 0
             return {"message": "Unlocked", "entries": vault_data}
         except InvalidTag:
+            self.failed_attempts = getattr(self, "failed_attempts", 0) + 1
+            if self.failed_attempts >= 5:
+                self.lockout_until = time.time() + 30
             return {"message": "Wrong password", "entries": []}
 
     def delete_entry(self, entry_id):
