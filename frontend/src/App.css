@@ -107,6 +107,7 @@ body {
 }
 
 .hero-card {
+  position: relative;
   width: 100%;
   aspect-ratio: 21 / 8;
   margin: 0;
@@ -116,6 +117,30 @@ body {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+  overflow: hidden;
+}
+
+.hero-card::after {
+  content: '';
+  position: absolute;
+  inset: 45% 0 0;
+  background: linear-gradient(to bottom, transparent, rgba(23, 25, 66, 0.58));
+  pointer-events: none;
+}
+
+.hero-actions {
+  position: absolute;
+  z-index: 1;
+  left: 20px;
+  bottom: 18px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.hero-actions .button-primary,
+.hero-actions .button-secondary {
+  box-shadow: 0 4px 12px rgba(23, 25, 66, 0.18);
 }
 
 .app-shell .unlock-screen,
@@ -161,7 +186,8 @@ body {
   box-shadow: 0 4px 15px rgba(73, 51, 120, 0.05);
 }
 .button-primary,
-.button-secondary {
+.button-secondary,
+.button-danger {
   padding: 10px 16px;
   border-radius: 10px;
   font-weight: 600;
@@ -183,6 +209,24 @@ body {
   color: #171942;
   border: 1px solid #d7cdea;
 }
+
+.button-danger {
+  background: var(--danger-light);
+  color: var(--danger);
+  border: 1px solid transparent;
+}
+
+.button-danger:hover {
+  background: var(--danger);
+  color: white;
+}
+
+.sidebar-edit-actions .button-secondary:hover {
+  background: var(--purple-100);
+  color: var(--purple-700);
+  border-color: var(--purple-300);
+}
+
 .nav-item.active {
   color: white;
   background: linear-gradient(90deg, #8f65ec, #c99bea);
@@ -224,6 +268,7 @@ p {
   flex-direction: column;
   gap: 4px;
   width: 100%;
+  min-height: 0;
 }
 
 .entry-row {
@@ -245,6 +290,13 @@ p {
 
 .entry-row-editing {
   background: var(--purple-50);
+}
+
+.entry-site,
+.entry-username {
+  margin: 0;
+  padding: 0;
+  text-align: left;
 }
 
 .entry-site {
@@ -654,10 +706,18 @@ p {
 
 /*! MAIN CONTENT (entries list) */
 .main-content {
-  padding: 24px;
+  min-height: 0;
+  max-height: 360px;
+  padding: 20px;
   display: flex;
   flex-direction: column;
   gap: 12px;
+}
+
+#entriesList {
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
 }
 
 .section-heading {
@@ -680,11 +740,12 @@ p {
 }
 
 .entry-info-cell {
-  display: flex;
+  display: grid;
+  grid-template-columns: 36px 1fr;
   align-items: center;
-  gap: 12px;
+  column-gap: 12px;
+  min-width: 0;
 }
-
 .entry-icon {
   width: 36px;
   height: 36px;
@@ -696,20 +757,21 @@ p {
   justify-content: center;
   font-weight: 700;
   font-size: 1rem;
-  flex-shrink: 0;
+  /* flex-shrink: 0; */
 }
 
 .entry-info-text {
   display: flex;
   flex-direction: column;
   gap: 2px;
+  text-align: left;
 }
 
 /*! APP LAYOUT (persistent three-column: nav / content / details) */
 .app-layout {
   display: flex;
-  gap: 32px;
-  padding: 32px;
+  gap: 24px;
+  padding: 24px;
 
   align-items: stretch;
 }
@@ -719,7 +781,7 @@ p {
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: 16px;
 }
 
 /*! SIDEBAR NAV */
@@ -878,6 +940,14 @@ p {
   text-align: left;
 }
 
+.sidebar-field-box .password-value {
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
+  word-break: break-all;
+  font-size: 0.85rem;
+}
+
 .strength-bar-row {
   display: flex;
   align-items: center;
@@ -909,11 +979,18 @@ p {
   display: flex;
   align-items: center;
   gap: 12px;
+  text-align: left;
+}
+
+.sidebar-subtext {
+  margin: 2px 0 0;
+  text-align: left;
 }
 
 .sidebar-header h2 {
   margin: 0;
   word-break: break-word;
+  text-align: left;
 }
 
 .sidebar-field {

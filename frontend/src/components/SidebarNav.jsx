@@ -5,7 +5,7 @@ const CATEGORIES = [
   { name: 'Secure Notes', colorVar: '--notes' },
 ];
 
-function SidebarNav({ onLock }) {
+function SidebarNav({ onLock, onOpenSettings, settingsActive }) {
   return (
     <nav className="sidebar-nav card">
       <div className="sidebar-brand">
@@ -47,7 +47,12 @@ function SidebarNav({ onLock }) {
       </div>
 
       <div className="sidebar-footer">
-        <button type="button" className="nav-item">
+        <button
+          type="button"
+          className={`nav-item${settingsActive ? ' active' : ''}`}
+          onClick={onOpenSettings}
+          aria-pressed={settingsActive}
+        >
           <span aria-hidden="true">⚙️</span> Settings
         </button>
         <button type="button" className="nav-item" onClick={onLock}>

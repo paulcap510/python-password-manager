@@ -15,9 +15,6 @@ function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeForm, setActiveForm] = useState(null);
   const [selectedEntryId, setSelectedEntryId] = useState(null);
-  // Bumped whenever an entry's row-level "Edit" button is clicked, so
-  // RightSideBar can open straight into edit mode for that entry instead of
-  // just selecting it (0 means "no edit requested yet").
   const [editRequestId, setEditRequestId] = useState(0);
 
   const filteredEntries = currentEntries.filter((entry) => {
@@ -28,9 +25,6 @@ function App() {
     );
   });
 
-  // The right-hand detail panel is always present once unlocked, so fall
-  // back to the first entry whenever there's no valid explicit selection
-  // (fresh unlock, or the previously selected entry was deleted).
   const selectedEntry =
     currentEntries.find((entry) => entry.id === selectedEntryId) ??
     (isUnlocked ? currentEntries[0] : undefined) ??
@@ -79,14 +73,23 @@ function App() {
           <UnlockScreen
             onEntriesChange={setCurrentEntries}
             onOutput={setOutput}
-            onUnlockedChange={setIsUnlocked}
+            onUnlockedChange={(unlocked) => {
+              setIsUnlocked(unlocked);
+              if (unlocked) setOutput('');
+            }}
           />
         </div>
       )}
 
       {isUnlocked && (
         <div className="app-layout">
-          <SidebarNav onLock={handleLock} />
+          <SidebarNav
+            onLock={handleLock}
+            onOpenSettings={() =>
+              setActiveForm(activeForm === 'password' ? null : 'password')
+            }
+            settingsActive={activeForm === 'password'}
+          />
 
           <div className="center-column">
             <div className="search-bar-row">
@@ -107,46 +110,34 @@ function App() {
             <div
               className="hero-card"
               style={{ backgroundImage: `url(${heroImage})` }}
-            />
-
-            <div className="action-buttons-row">
-              <button
-                type="button"
-                className="button-primary"
-                onClick={() =>
-                  setActiveForm(activeForm === 'add' ? null : 'add')
-                }
-              >
-                <span aria-hidden="true">➕</span> Add Entry
-              </button>
-              <button
-                type="button"
-                className="button-secondary"
-                onClick={() =>
-                  setActiveForm(activeForm === 'add' ? null : 'add')
-                }
-              >
-                <span aria-hidden="true">🪄</span> Generate Password
-              </button>
-              <button
-                type="button"
-                className="button-secondary"
-                onClick={handleLock}
-              >
-                <span aria-hidden="true">🔒</span> Lock Vault
-              </button>
-            </div>
-
-            <div className="action-buttons-row">
-              <button
-                type="button"
-                className="button-secondary"
-                onClick={() =>
-                  setActiveForm(activeForm === 'password' ? null : 'password')
-                }
-              >
-                Change Master Password
-              </button>
+            >
+              <div className="hero-actions">
+                <button
+                  type="button"
+                  className="button-primary"
+                  onClick={() =>
+                    setActiveForm(activeForm === 'add' ? null : 'add')
+                  }
+                >
+                  <span aria-hidden="true">➕</span> Add Entry
+                </button>
+                <button
+                  type="button"
+                  className="button-secondary"
+                  onClick={() =>
+                    setActiveForm(activeForm === 'add' ? null : 'add')
+                  }
+                >
+                  <span aria-hidden="true">🪄</span> Generate Password
+                </button>
+                <button
+                  type="button"
+                  className="button-secondary"
+                  onClick={handleLock}
+                >
+                  <span aria-hidden="true">🔒</span> Lock Vault
+                </button>
+              </div>
             </div>
 
             {activeForm === 'add' && (
