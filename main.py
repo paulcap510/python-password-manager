@@ -40,6 +40,30 @@ class Api:
     def _is_unlocked(self):
         return hasattr(self, "key")
 
+    def change_master_password(self, password):
+
+        if not self._is_unlocked():
+            return {"message": "Please unlock the vault first", "entries": []}
+
+        salt = os.urandom(SALT_SIZE)
+        key = derive_key(password, salt)
+        new_plaintext = json.dumps(self.entries).encode()
+        aesgcm = AESGCM(key)
+        nonce = os.urandom(NONCE_SIZE)
+        encrypted = aesgcm.encrypt(nonce, new_plaintext, None)
+
+        with open(VAULT_FILE, "wb") as f:
+            f.write(salt)
+            f.write(nonce)
+            f.write(encrypted)
+        secure_file_permissions()
+
+        self.key = key
+        return {
+            "message": "Master password changed successfully",
+            "entries": self.entries,
+        }
+
     def create_vault(self, password):
         salt = os.urandom(SALT_SIZE)
         key = derive_key(password, salt)

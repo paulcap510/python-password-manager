@@ -42,7 +42,19 @@
     <button id="addEntryBtn" type="button">Add Entry</button>
     <p id="duplicateWarning" style="color: red"></p>
 
+    <h2>Change Master Password</h2>
+    <div>
+      <label for="new-master-password">New Master Password:</label>
+      <input
+        type="password"
+        id="new-master-password"
+        placeholder="New master password"
+      />
+    </div>
+    <button id="changePasswordBtn" type="button">Change Master Password</button>
+
     <h2>Entries</h2>
+
     <div id="entriesList"></div>
 
     <p id="output"></p>
@@ -298,6 +310,19 @@
             .dispatchEvent(new Event('input'));
           document.getElementById('generatedPasswordDisplay').style.display =
             'none';
+        });
+
+      document
+        .getElementById('changePasswordBtn')
+        .addEventListener('click', async () => {
+          const newPassword = document.getElementById(
+            'new-master-password',
+          ).value;
+          const result =
+            await pywebview.api.change_master_password(newPassword);
+          document.getElementById('output').innerText = result.message;
+          document.getElementById('new-master-password').value = '';
+          renderEntries(result.entries);
         });
     </script>
   </body>
