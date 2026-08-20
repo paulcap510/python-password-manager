@@ -94,17 +94,7 @@ body {
   flex-direction: column;
   align-items: stretch;
   gap: 32px;
-  /* width: 100% (not just max-width) is required here: #root is itself
-     a column-direction flex container, and a flex item with an auto
-     cross-axis size plus auto cross-axis margins (margin: 0 auto) is
-     NOT stretched to fill it per the flexbox spec — it falls back to
-     shrink-wrapping its content instead, ignoring how much of
-     max-width is actually available. Giving it a definite width
-     (100%) sidesteps that and lets max-width act as the real cap. */
   width: 100%;
-  /* 220px .sidebar-nav + 320px .right-sidebar + 64px of column gaps +
-     64px of .app-layout padding = 668px fixed overhead, so 1240px
-     here leaves .center-column ~572px of usable width. */
   max-width: 1240px;
   margin: 0 auto;
   padding-top: 48px;
@@ -116,11 +106,6 @@ body {
   margin: 0;
 }
 
-/* The hero art is painted as this element's own background-image
-   rather than a nested <img>. A background always renders clipped to
-   its own border-radius, in every browser/engine, so there's no
-   parent/child clipping relationship that can leave a gap — this is
-   more reliable than overflow:hidden on a wrapper around an <img>. */
 .hero-card {
   width: 100%;
   aspect-ratio: 21 / 8;
@@ -165,7 +150,7 @@ body {
 
 .entry-input.search-input {
   padding: 14px 16px 14px 44px;
-  border-radius: 999px;
+  border-radius: 10px;
 }
 
 .card {
@@ -241,13 +226,6 @@ p {
   width: 100%;
 }
 
-/* Flat list rows (matches the .nav-item / .category-item "recent items"
-   pattern elsewhere in the app) rather than individually boxed/shadowed
-   cards — a hover fill is enough to separate rows. Each row is two zones:
-   entry-info-cell (icon + site/username) on the left, entry-actions
-   (Edit/Delete) on the right — a compact summary only. The password
-   itself is intentionally not shown here; RightSideBar.jsx is still the
-   place to reveal/copy it once an entry is selected. */
 .entry-row {
   display: flex;
   align-items: center;
@@ -460,12 +438,9 @@ p {
   display: flex;
   flex-wrap: nowrap;
   gap: 8px;
+  justify-content: center;
 }
 
-/* Slightly tighter than the default .button-primary/.button-secondary
-   padding so all three hero buttons (Add Entry, Generate Password,
-   Lock Vault) fit on one line within the center column without
-   wrapping. */
 .action-buttons-row .button-primary,
 .action-buttons-row .button-secondary {
   flex: 0 0 auto;
@@ -474,20 +449,158 @@ p {
 
 /*! ADD ENTRY FORM */
 
+/* ADD ENTRY FORM */
+
 .add-entry-form {
-  max-width: 480px;
-  padding: 24px;
+  width: 100%;
+  max-width: 520px;
+
+  padding: 30px 32px;
+
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 18px;
+}
+
+.add-entry-form h2 {
+  margin: 0 0 6px;
+
+  font-size: 1.65rem;
+  font-weight: 600;
+  text-align: center;
+
+  color: var(--text-primary);
 }
 
 .form-field {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 7px;
 }
 
+.form-field label {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-align: left;
+}
+
+.entry-input {
+  width: 100%;
+  height: 44px;
+
+  padding: 0 14px;
+
+  box-sizing: border-box;
+
+  border: 1px solid var(--border-medium);
+  border-radius: 10px;
+
+  color: var(--text-primary);
+  background: var(--bg-panel);
+
+  font: inherit;
+  font-size: 0.95rem;
+}
+
+.entry-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-light);
+}
+
+.password-field-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+}
+
+.password-field-row .entry-input {
+  min-width: 0;
+}
+
+.password-field-row .button-secondary {
+  height: 44px;
+  white-space: nowrap;
+}
+
+/* Reserve feedback space without making it huge */
+
+.strength-feedback {
+  height: 36px;
+
+  margin: 0;
+  padding: 3px 2px 0;
+
+  display: flex;
+  align-items: flex-start;
+
+  font-size: 0.82rem;
+  line-height: 1.35;
+  text-align: left;
+
+  color: var(--text-muted);
+}
+
+/* Generated password */
+
+.generated-password-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  padding: 10px 12px;
+
+  background: var(--purple-50);
+  border: 1px solid var(--border-light);
+  border-radius: 10px;
+
+  font-family: monospace;
+}
+
+/* Main Add button */
+
+.add-entry-form > .button-primary {
+  width: 100%;
+  height: 46px;
+
+  margin-top: 2px;
+
+  font-size: 1rem;
+}
+
+/* Reserve a small area for duplicate errors */
+
+.warning-text {
+  min-height: 18px;
+
+  margin: -8px 0 0;
+
+  color: var(--danger);
+
+  font-size: 0.8rem;
+  text-align: center;
+}
+/* .add-entry-form {
+  max-width: 480px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+} */
+
+/* .form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+} */
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
 .form-field label {
   color: var(--text-secondary);
   font-size: 0.9rem;
@@ -504,10 +617,23 @@ p {
 }
 
 .strength-feedback {
+  min-height: 48px;
+
+  margin: 10px 0 0;
+  padding: 0 8px;
+
+  font-size: 0.95rem;
+  line-height: 1.4;
+  text-align: center;
+
+  color: var(--text-muted);
+}
+
+/* .strength-feedback {
   font-size: 0.85rem;
   color: var(--text-muted);
   margin: 0;
-}
+} */
 
 .generated-password-box {
   display: flex;
@@ -536,9 +662,6 @@ p {
 
 .section-heading {
   margin: 0;
-  /* index.css's leftover #root { text-align: center } otherwise cascades
-     down and centers this — same reason .unlock-field/.sidebar-field
-     already need their own explicit text-align: left. */
   text-align: left;
 }
 
@@ -585,24 +708,14 @@ p {
 /*! APP LAYOUT (persistent three-column: nav / content / details) */
 .app-layout {
   display: flex;
-  /* Outer breathing room so the gradient shows on all four edges
-     instead of the columns sitting flush against the window, plus a
-     matching gap between the three columns so they read as separate
-     floating cards rather than touching panels. */
   gap: 32px;
   padding: 32px;
-  /* Stretch (not flex-start) so all three columns share one height —
-     each matches the tallest, instead of sizing to its own content. */
+
   align-items: stretch;
 }
 
 .center-column {
   flex: 1;
-  /* min-width: 0 overrides the flex default of min-width: auto, which
-     otherwise sizes this column to its content's intrinsic width (the
-     pill-shaped search input) and lets it push past the space the
-     32px gap/padding above reserve for the sidebars — the cause of
-     the search bar clipping into the right panel. */
   min-width: 0;
   display: flex;
   flex-direction: column;

@@ -1,9 +1,10 @@
-// Row-level actions call the same pywebview APIs RightSideBar.jsx uses for
-// editing/deleting, so entries/output stay in sync however the action was
-// triggered. Password value/reveal/copy is deliberately NOT here — this row
-// is a compact summary; the full detail (including the password) still
-// lives in RightSideBar.jsx once an entry is selected.
-function EntryTable({ entries, onSelectEntry, onEditEntry, onEntriesChange, onOutput }) {
+function EntryTable({
+  entries,
+  onSelectEntry,
+  onEditEntry,
+  onEntriesChange,
+  onOutput,
+}) {
   const handleDelete = async (e, entry) => {
     e.stopPropagation();
     const result = await window.pywebview.api.delete_entry(entry.id);

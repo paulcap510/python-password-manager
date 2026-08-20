@@ -3,6 +3,8 @@ import { useEffect, useState } from 'react';
 const STRENGTH_LABELS = ['Very Weak', 'Weak', 'Fair', 'Good', 'Strong'];
 const STRENGTH_COLORS = ['#e85b64', '#f4ad32', '#f4ad32', '#39b95f', '#39b95f'];
 
+import { copyToClipboard } from '../utils/clipboard';
+
 function RightSideBar({ entry }) {
   const [revealed, setRevealed] = useState(false);
   const [passwordScore, setPasswordScore] = useState(null);
@@ -49,7 +51,11 @@ function RightSideBar({ entry }) {
         <label>Website</label>
         <div className="sidebar-field-box">
           <span>{entry.site}</span>
-          <button type="button" className="icon-button" onClick={() => {}}>
+          <button
+            type="button"
+            className="icon-button"
+            onClick={() => copyToClipboard(entry.site)}
+          >
             📋
           </button>
         </div>
@@ -59,7 +65,11 @@ function RightSideBar({ entry }) {
         <label>Username</label>
         <div className="sidebar-field-box">
           <span>{entry.username}</span>
-          <button type="button" className="icon-button" onClick={() => {}}>
+          <button
+            type="button"
+            className="icon-button"
+            onClick={() => copyToClipboard(entry.username)}
+          >
             📋
           </button>
         </div>
@@ -102,7 +112,11 @@ function RightSideBar({ entry }) {
             )}
           </button>
 
-          <button type="button" className="icon-button" onClick={() => {}}>
+          <button
+            type="button"
+            className="icon-button"
+            onClick={() => copyToClipboard(entry.password)}
+          >
             📋
           </button>
         </div>
