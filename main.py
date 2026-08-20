@@ -43,7 +43,18 @@ class Api:
     def change_master_password(self, password):
 
         if not self._is_unlocked():
-            return {"message": "Please unlock the vault first", "entries": []}
+            return {
+                "message": "Please unlock the vault first",
+                "entries": [],
+                "success": False,
+            }
+
+        if not password:
+            return {
+                "message": "New master password cannot be empty",
+                "entries": self.entries,
+                "success": False,
+            }
 
         salt = os.urandom(SALT_SIZE)
         key = derive_key(password, salt)
@@ -62,9 +73,24 @@ class Api:
         return {
             "message": "Master password changed successfully",
             "entries": self.entries,
+            "success": True,
         }
 
     def create_vault(self, password):
+        if not password:
+            return {
+                "message": "Master password cannot be empty",
+                "entries": [],
+                "success": False,
+            }
+
+        if os.path.exists(VAULT_FILE):
+            return {
+                "message": "A vault already exists. Please unlock instead.",
+                "entries": [],
+                "success": False,
+            }
+
         salt = os.urandom(SALT_SIZE)
         key = derive_key(password, salt)
         empty_vault = json.dumps([]).encode()
@@ -76,7 +102,10 @@ class Api:
             f.write(nonce)
             f.write(encrypted)
         secure_file_permissions()
-        return {"message": "Vault created successfully", "entries": []}
+        self.key = key
+        self.entries = []
+        self.failed_attempts = 0
+        return {"message": "Vault created successfully", "entries": [], "success": True}
 
     def unlock(self, password):
         if hasattr(self, "lockout_until") and time.time() < self.lockout_until:
@@ -84,6 +113,14 @@ class Api:
             return {
                 "message": f"Too many failed attempts. Try again in {remaining} seconds.",
                 "entries": [],
+                "success": False,
+            }
+
+        if not password:
+            return {
+                "message": "Master password cannot be empty",
+                "entries": [],
+                "success": False,
             }
 
         try:
@@ -93,6 +130,7 @@ class Api:
             return {
                 "message": "No vault found. Please create one first.",
                 "entries": [],
+                "success": False,
             }
 
         salt = data[:SALT_SIZE]
@@ -106,16 +144,28 @@ class Api:
             self.key = key
             self.entries = vault_data
             self.failed_attempts = 0
-            return {"message": "Unlocked", "entries": vault_data}
+            return {"message": "Unlocked", "entries": vault_data, "success": True}
         except InvalidTag:
             self.failed_attempts = getattr(self, "failed_attempts", 0) + 1
             if self.failed_attempts >= 5:
                 self.lockout_until = time.time() + 30
-            return {"message": "Wrong password", "entries": []}
+            return {"message": "Wrong password", "entries": [], "success": False}
 
     def delete_entry(self, entry_id):
         if not self._is_unlocked():
-            return {"message": "Please unlock the vault first", "entries": []}
+            return {
+                "message": "Please unlock the vault first",
+                "entries": [],
+                "success": False,
+            }
+
+        if not any(entry["id"] == entry_id for entry in self.entries):
+            return {
+                "message": "Entry not found",
+                "entries": self.entries,
+                "success": False,
+            }
+
         self.entries = [entry for entry in self.entries if entry["id"] != entry_id]
 
         aesgcm = AESGCM(self.key)
@@ -131,13 +181,39 @@ class Api:
             f.write(nonce)
             f.write(encrypted)
         secure_file_permissions()
-        return {"message": "Entry deleted", "entries": self.entries}
+        return {"message": "Entry deleted", "entries": self.entries, "success": True}
 
     def edit_entry(self, entry_id, site=None, username=None, password=None):
         if not self._is_unlocked():
-            return {"message": "Please unlock the vault first", "entries": []}
+            return {
+                "message": "Please unlock the vault first",
+                "entries": [],
+                "success": False,
+            }
+
+        if site is not None and not site.strip():
+            return {
+                "message": "Site cannot be empty",
+                "entries": self.entries,
+                "success": False,
+            }
+        if username is not None and not username.strip():
+            return {
+                "message": "Username cannot be empty",
+                "entries": self.entries,
+                "success": False,
+            }
+        if password is not None and not password:
+            return {
+                "message": "Password cannot be empty",
+                "entries": self.entries,
+                "success": False,
+            }
+
+        entry_found = False
         for entry in self.entries:
             if entry["id"] == entry_id:
+                entry_found = True
                 if site is not None:
                     entry["site"] = site
                 if username is not None:
@@ -145,6 +221,13 @@ class Api:
                 if password is not None:
                     entry["password"] = password
                 break
+
+        if not entry_found:
+            return {
+                "message": "Entry not found",
+                "entries": self.entries,
+                "success": False,
+            }
 
         aesgcm = AESGCM(self.key)
         nonce = os.urandom(NONCE_SIZE)
@@ -159,11 +242,34 @@ class Api:
             f.write(nonce)
             f.write(encrypted)
         secure_file_permissions()
-        return {"message": "Entry updated", "entries": self.entries}
+        return {"message": "Entry updated", "entries": self.entries, "success": True}
 
     def add_entry(self, site, username, password):
         if not self._is_unlocked():
-            return {"message": "Please unlock the vault first", "entries": []}
+            return {
+                "message": "Please unlock the vault first",
+                "entries": [],
+                "success": False,
+            }
+
+        if not site or not site.strip():
+            return {
+                "message": "Site cannot be empty",
+                "entries": self.entries,
+                "success": False,
+            }
+        if not username or not username.strip():
+            return {
+                "message": "Username cannot be empty",
+                "entries": self.entries,
+                "success": False,
+            }
+        if not password:
+            return {
+                "message": "Password cannot be empty",
+                "entries": self.entries,
+                "success": False,
+            }
 
         #! This checks for identical usernames and websites only; addition to FE check
         for entry in self.entries:
@@ -171,6 +277,7 @@ class Api:
                 return {
                     "message": "An entry for this site and username already exists",
                     "entries": self.entries,
+                    "success": False,
                 }
 
         entry_id = str(uuid.uuid4())
@@ -191,7 +298,11 @@ class Api:
             f.write(nonce)
             f.write(encrypted)
         secure_file_permissions()
-        return {"message": f"Entry added with id {entry_id}", "entries": self.entries}
+        return {
+            "message": f"Entry added with id {entry_id}",
+            "entries": self.entries,
+            "success": True,
+        }
 
     def lock(self):
         if hasattr(self, "key"):
@@ -201,6 +312,9 @@ class Api:
         return {"message": "Vault locked"}
 
     def copy_to_clipboard(self, text):
+        if not text:
+            return {"message": "Nothing to copy"}
+
         pyperclip.copy(text)
 
         def clear_later():
@@ -224,11 +338,27 @@ class Api:
 
         return {"score": score, "feedback": feedback}
 
+    def vault_exists(self):
+        return {"exists": os.path.exists(VAULT_FILE)}
+
     def generate_password(self, length=16):
+        try:
+            length = int(length)
+        except (TypeError, ValueError):
+            length = 16
+        length = max(8, min(length, 128))
+
         alphabet = string.ascii_letters + string.digits + "!@#$%^&*()-_=+"
         return {"password": "".join(secrets.choice(alphabet) for _ in range(length))}
 
 
 api = Api()
-webview.create_window("Password Manager", "index.html", js_api=api)
+webview.create_window(
+    "Password Manager",
+    "http://localhost:5173",
+    js_api=api,
+    width=1400,
+    height=900,
+    min_size=(1240, 700),
+)  # webview.create_window("Password Manager", "index.html", js_api=api)
 webview.start()

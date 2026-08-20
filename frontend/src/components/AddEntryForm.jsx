@@ -1,0 +1,136 @@
+import { useState } from 'react';
+
+const STRENGTH_LABELS = ['Very Weak', 'Weak', 'Fair', 'Good', 'Strong'];
+
+function AddEntryForm({ entries, onEntriesChange, onOutput, onSuccessClose }) {
+  const [site, setSite] = useState('');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [passwordStrength, setPasswordStrength] = useState('');
+  const [generatedPassword, setGeneratedPassword] = useState('');
+  const [showGeneratedPassword, setShowGeneratedPassword] = useState(false);
+
+  const isDuplicate = entries.some(
+    (entry) =>
+      entry.site === site && entry.username === username && site !== '',
+  );
+
+  const checkPasswordStrength = async (value) => {
+    const result = await window.pywebview.api.check_password_strength(value);
+    setPasswordStrength(
+      value
+        ? `${STRENGTH_LABELS[result.score]}${result.feedback ? ' — ' + result.feedback : ''}`
+        : '',
+    );
+  };
+
+  const handlePasswordChange = async (e) => {
+    const value = e.target.value;
+    setPassword(value);
+    await checkPasswordStrength(value);
+  };
+
+  const handleAddEntry = async () => {
+    const result = await window.pywebview.api.add_entry(
+      site,
+      username,
+      password,
+    );
+    onOutput(result.message);
+    onEntriesChange(result.entries);
+    if (result.success) {
+      setSite('');
+      setUsername('');
+      setPassword('');
+      setPasswordStrength('');
+      onSuccessClose?.();
+    }
+  };
+
+  const handleGeneratePassword = async () => {
+    const result = await window.pywebview.api.generate_password();
+    setGeneratedPassword(result.password);
+    setShowGeneratedPassword(true);
+  };
+
+  const handleUseGenerated = async () => {
+    setPassword(generatedPassword);
+    await checkPasswordStrength(generatedPassword);
+    setShowGeneratedPassword(false);
+  };
+
+  return (
+    <div className="add-entry-form card">
+      <h2>Add New Entry</h2>
+      <div className="form-field">
+        <label htmlFor="entry-site">Site:</label>
+        <input
+          type="text"
+          id="entry-site"
+          className="entry-input"
+          placeholder="e.g. gmail.com"
+          value={site}
+          onChange={(e) => setSite(e.target.value)}
+        />
+      </div>
+      <div className="form-field">
+        <label htmlFor="entry-username">Username:</label>
+        <input
+          type="text"
+          id="entry-username"
+          className="entry-input"
+          placeholder="username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+        />
+      </div>
+      <div className="form-field">
+        <label htmlFor="entry-password">Password:</label>
+        <div className="password-field-row">
+          <input
+            type="password"
+            id="entry-password"
+            className="entry-input"
+            placeholder="password"
+            value={password}
+            onChange={handlePasswordChange}
+          />
+          <button
+            type="button"
+            className="button-secondary button-sm"
+            onClick={handleGeneratePassword}
+          >
+            Generate Password
+          </button>
+        </div>
+        <p id="passwordStrength" className="strength-feedback">
+          {passwordStrength}
+        </p>
+      </div>
+
+      {showGeneratedPassword && (
+        <div id="generatedPasswordDisplay" className="generated-password-box">
+          <span id="generatedPasswordText">{generatedPassword}</span>
+          <button
+            type="button"
+            className="button-primary button-sm"
+            onClick={handleUseGenerated}
+          >
+            Use This
+          </button>
+        </div>
+      )}
+
+      <button type="button" className="button-primary" onClick={handleAddEntry}>
+        Add Entry
+      </button>
+      <p id="duplicateWarning" className="warning-text">
+        {isDuplicate
+          ? 'An entry for this site and username already exists'
+          : ''}
+      </p>
+    </div>
+  );
+}
+
+export default AddEntryForm;
