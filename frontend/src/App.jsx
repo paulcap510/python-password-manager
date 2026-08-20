@@ -2,9 +2,10 @@ import { useEffect, useState } from 'react';
 import UnlockScreen from './components/UnlockScreen';
 import AddEntryForm from './components/AddEntryForm';
 import EntryTable from './components/EntryTable';
-import ChangePasswordForm from './components/ChangePasswordForm';
+// import ChangePasswordForm from './components/ChangePasswordForm';
 import RightSideBar from './components/RightSideBar';
 import SidebarNav from './components/SidebarNav';
+import SettingsModal from './components/SettingsModal';
 import './App.css';
 import heroImage from './assets/hero-safe.png';
 
@@ -82,107 +83,112 @@ function App() {
       )}
 
       {isUnlocked && (
-        <div className="app-layout">
-          <SidebarNav
-            onLock={handleLock}
-            onOpenSettings={() =>
-              setActiveForm(activeForm === 'password' ? null : 'password')
-            }
-            settingsActive={activeForm === 'password'}
-          />
+        <>
+          <div className="app-layout">
+            <SidebarNav
+              onLock={handleLock}
+              onOpenSettings={() =>
+                setActiveForm(activeForm === 'settings' ? null : 'settings')
+              }
+              settingsActive={activeForm === 'settings'}
+            />
 
-          <div className="center-column">
-            <div className="search-bar-row">
-              <div className="search-input-wrapper">
-                <span className="search-icon" aria-hidden="true">
-                  🔍
-                </span>
-                <input
-                  type="text"
-                  className="entry-input search-input"
-                  placeholder="Search vault..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+            <div className="center-column">
+              <div className="search-bar-row">
+                <div className="search-input-wrapper">
+                  <span className="search-icon" aria-hidden="true">
+                    🔍
+                  </span>
+                  <input
+                    type="text"
+                    className="entry-input search-input"
+                    placeholder="Search vault..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div
+                className="hero-card"
+                style={{ backgroundImage: `url(${heroImage})` }}
+              >
+                <div className="hero-actions">
+                  <button
+                    type="button"
+                    className="button-primary"
+                    onClick={() =>
+                      setActiveForm(activeForm === 'add' ? null : 'add')
+                    }
+                  >
+                    <span aria-hidden="true">➕</span> Add Entry
+                  </button>
+                  <button
+                    type="button"
+                    className="button-secondary"
+                    onClick={() =>
+                      setActiveForm(activeForm === 'add' ? null : 'add')
+                    }
+                  >
+                    <span aria-hidden="true">🪄</span> Generate Password
+                  </button>
+                  <button
+                    type="button"
+                    className="button-secondary"
+                    onClick={handleLock}
+                  >
+                    <span aria-hidden="true">🔒</span> Lock Vault
+                  </button>
+                </div>
+              </div>
+
+              {activeForm === 'add' && (
+                <AddEntryForm
+                  entries={currentEntries}
+                  onEntriesChange={setCurrentEntries}
+                  onOutput={setOutput}
+                  onSuccessClose={() => setActiveForm(null)}
                 />
-              </div>
-            </div>
+              )}
 
-            <div
-              className="hero-card"
-              style={{ backgroundImage: `url(${heroImage})` }}
-            >
-              <div className="hero-actions">
-                <button
-                  type="button"
-                  className="button-primary"
-                  onClick={() =>
-                    setActiveForm(activeForm === 'add' ? null : 'add')
-                  }
-                >
-                  <span aria-hidden="true">➕</span> Add Entry
-                </button>
-                <button
-                  type="button"
-                  className="button-secondary"
-                  onClick={() =>
-                    setActiveForm(activeForm === 'add' ? null : 'add')
-                  }
-                >
-                  <span aria-hidden="true">🪄</span> Generate Password
-                </button>
-                <button
-                  type="button"
-                  className="button-secondary"
-                  onClick={handleLock}
-                >
-                  <span aria-hidden="true">🔒</span> Lock Vault
-                </button>
-              </div>
-            </div>
-
-            {activeForm === 'add' && (
-              <AddEntryForm
-                entries={currentEntries}
-                onEntriesChange={setCurrentEntries}
-                onOutput={setOutput}
-                onSuccessClose={() => setActiveForm(null)}
-              />
-            )}
-
-            {activeForm === 'password' && (
+              {/* {activeForm === 'password' && (
               <ChangePasswordForm
                 onEntriesChange={setCurrentEntries}
                 onOutput={setOutput}
                 onSuccessClose={() => setActiveForm(null)}
               />
-            )}
+            )} */}
 
-            <div className="main-content card">
-              <h2 className="section-heading">
-                Entries{' '}
-                <span className="section-count">
-                  ({filteredEntries.length})
-                </span>
-              </h2>
-              <div id="entriesList">
-                <EntryTable
-                  entries={filteredEntries}
-                  onSelectEntry={(entry) => setSelectedEntryId(entry.id)}
-                  onEditEntry={handleEditEntry}
-                  onEntriesChange={setCurrentEntries}
-                  onOutput={setOutput}
-                />
+              <div className="main-content card">
+                <h2 className="section-heading">
+                  Entries{' '}
+                  <span className="section-count">
+                    ({filteredEntries.length})
+                  </span>
+                </h2>
+                <div id="entriesList">
+                  <EntryTable
+                    entries={filteredEntries}
+                    onSelectEntry={(entry) => setSelectedEntryId(entry.id)}
+                    onEditEntry={handleEditEntry}
+                    onEntriesChange={setCurrentEntries}
+                    onOutput={setOutput}
+                  />
+                </div>
               </div>
             </div>
-          </div>
 
-          <RightSideBar
-            entry={selectedEntry}
-            onEntriesChange={setCurrentEntries}
-            onOutput={setOutput}
-            editRequestId={editRequestId}
-          />
-        </div>
+            <RightSideBar
+              entry={selectedEntry}
+              onEntriesChange={setCurrentEntries}
+              onOutput={setOutput}
+              editRequestId={editRequestId}
+            />
+          </div>
+          {activeForm === 'settings' && (
+            <SettingsModal onClose={() => setActiveForm(null)} />
+          )}
+        </>
       )}
 
       <p id="output">{output}</p>
