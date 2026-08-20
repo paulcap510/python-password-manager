@@ -1,184 +1,833 @@
-.counter {
-  font-size: 16px;
-  padding: 5px 10px;
-  border-radius: 5px;
-  color: var(--accent);
-  background: var(--accent-bg);
-  border: 2px solid transparent;
-  transition: border-color 0.3s;
-  margin-bottom: 24px;
+:root {
+  /* Backgrounds */
+  --bg-page: #c9b8ff;
+  --bg-page-secondary: #f3d7f5;
+  --bg-app: #f8f5ff;
+  --bg-sidebar: #f4efff;
+  --bg-panel: #ffffff;
+  --bg-card: #fbf9ff;
 
-  &:hover {
-    border-color: var(--accent-border);
-  }
-  &:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
-  }
+  /* Purple brand colors */
+  --purple-50: #f4efff;
+  --purple-100: #e8dcff;
+  --purple-200: #d6c1ff;
+  --purple-300: #b99cff;
+  --purple-400: #9c78f5;
+  --purple-500: #8158e8;
+  --purple-600: #6e46d6;
+  --purple-700: #5632ae;
+
+  /* Primary actions */
+  --primary: #8158e8;
+  --primary-hover: #6e46d6;
+  --primary-light: #ede4ff;
+
+  /* Text */
+  --text-primary: #171942;
+  --text-secondary: #5f6385;
+  --text-muted: #8e91ab;
+  --text-on-primary: #ffffff;
+
+  /* Borders */
+  --border-light: #e5def3;
+  --border-medium: #d7cdea;
+
+  /* Status colors */
+  --success: #39b95f;
+  --success-light: #def5e4;
+
+  --warning: #f4ad32;
+  --warning-light: #fff0d4;
+
+  --danger: #e85b64;
+  --danger-light: #ffe4e7;
+
+  --info: #4c84e8;
+  --info-light: #e3edff;
+
+  /* Category colors */
+  --work: #4d86ef;
+  --work-bg: #e5efff;
+
+  --personal: #56b86c;
+  --personal-bg: #e4f5e8;
+
+  --finance: #e7a33b;
+  --finance-bg: #fff0d8;
+
+  --notes: #895eea;
+  --notes-bg: #eee5ff;
 }
 
-.hero {
-  position: relative;
-
-  .base,
-  .framework,
-  .vite {
-    inset-inline: 0;
-    margin: 0 auto;
-  }
-
-  .base {
-    width: 170px;
-    position: relative;
-    z-index: 0;
-  }
-
-  .framework,
-  .vite {
-    position: absolute;
-  }
-
-  .framework {
-    z-index: 1;
-    top: 34px;
-    height: 28px;
-    transform: perspective(2000px) rotateZ(300deg) rotateX(44deg) rotateY(39deg)
-      scale(1.4);
-  }
-
-  .vite {
-    z-index: 0;
-    top: 107px;
-    height: 26px;
-    width: auto;
-    transform: perspective(2000px) rotateZ(300deg) rotateX(40deg) rotateY(39deg)
-      scale(0.8);
-  }
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
-#center {
+body {
+  background: linear-gradient(
+    135deg,
+    #b9a7f5 0%,
+    #d3c4ff 35%,
+    #f0d3ef 70%,
+    #c5b4f5 100%
+  );
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, Roboto, Helvetica,
+    Arial, sans-serif;
+}
+.vault-hero {
+  background: linear-gradient(135deg, #eadcff 0%, #f4dff6 55%, #ddc9ff 100%);
+}
+.app {
+  background: rgba(248, 245, 255, 0.94);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+
+  box-shadow: 0 20px 60px rgba(72, 48, 130, 0.18);
+
+  backdrop-filter: blur(20px);
+}
+
+.app-shell {
   display: flex;
   flex-direction: column;
-  gap: 25px;
-  place-content: center;
-  place-items: center;
-  flex-grow: 1;
-
-  @media (max-width: 1024px) {
-    padding: 32px 20px 24px;
-    gap: 18px;
-  }
+  align-items: stretch;
+  gap: 32px;
+  /* width: 100% (not just max-width) is required here: #root is itself
+     a column-direction flex container, and a flex item with an auto
+     cross-axis size plus auto cross-axis margins (margin: 0 auto) is
+     NOT stretched to fill it per the flexbox spec — it falls back to
+     shrink-wrapping its content instead, ignoring how much of
+     max-width is actually available. Giving it a definite width
+     (100%) sidesteps that and lets max-width act as the real cap. */
+  width: 100%;
+  /* 220px .sidebar-nav + 320px .right-sidebar + 64px of column gaps +
+     64px of .app-layout padding = 668px fixed overhead, so 1240px
+     here leaves .center-column ~572px of usable width. */
+  max-width: 1240px;
+  margin: 0 auto;
+  padding-top: 48px;
 }
 
-#next-steps {
-  display: flex;
-  border-top: 1px solid var(--border);
-  text-align: left;
-
-  & > div {
-    flex: 1 1 0;
-    padding: 32px;
-    @media (max-width: 1024px) {
-      padding: 24px 20px;
-    }
-  }
-
-  .icon {
-    margin-bottom: 16px;
-    width: 22px;
-    height: 22px;
-  }
-
-  @media (max-width: 1024px) {
-    flex-direction: column;
-    text-align: center;
-  }
+.app-shell > h1,
+.app-shell > h2,
+.app-shell > p {
+  margin: 0;
 }
 
-#docs {
-  border-right: 1px solid var(--border);
-
-  @media (max-width: 1024px) {
-    border-right: none;
-    border-bottom: 1px solid var(--border);
-  }
-}
-
-#next-steps ul {
-  list-style: none;
+/* The hero art is painted as this element's own background-image
+   rather than a nested <img>. A background always renders clipped to
+   its own border-radius, in every browser/engine, so there's no
+   parent/child clipping relationship that can leave a gap — this is
+   more reliable than overflow:hidden on a wrapper around an <img>. */
+.hero-card {
+  width: 100%;
+  aspect-ratio: 21 / 8;
+  margin: 0;
   padding: 0;
+  border: none;
+  border-radius: 16px;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.app-shell .unlock-screen,
+.app-shell .add-entry-form,
+.app-shell .change-password-form {
+  align-self: center;
+}
+
+/*! SEARCH BAR */
+.search-bar-row {
   display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.search-input-wrapper {
+  position: relative;
+  flex: 1;
+}
+
+.search-input-wrapper .search-icon {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  pointer-events: none;
+  line-height: 1;
+}
+
+.entry-input.search-input {
+  padding: 14px 16px 14px 44px;
+  border-radius: 999px;
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid #e5def3;
+  border-radius: 16px;
+
+  box-shadow: 0 4px 15px rgba(73, 51, 120, 0.05);
+}
+.button-primary,
+.button-secondary {
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+
+.button-primary {
+  background: #8158e8;
+  color: white;
+  border: none;
+}
+
+.button-primary:hover {
+  background: #6e46d6;
+}
+.button-secondary {
+  background: rgba(255, 255, 255, 0.8);
+  color: #171942;
+  border: 1px solid #d7cdea;
+}
+.nav-item.active {
+  color: white;
+  background: linear-gradient(90deg, #8f65ec, #c99bea);
+}
+.nav-item.active:hover {
+  background: linear-gradient(90deg, #8f65ec, #c99bea);
+  color: white;
+}
+.nav-item {
+  color: #34365e;
+}
+.nav-item:hover {
+  background: #dac9fb;
+}
+.nav-item {
+  color: #34365e;
+}
+
+.nav-item:hover {
+  background: #eee7fb;
+}
+h1,
+h2,
+h3 {
+  color: #171942;
+}
+
+p {
+  color: #5f6385;
+}
+
+.label,
+.metadata {
+  color: #8e91ab;
+}
+
+.entry-table {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+}
+
+/* Flat list rows (matches the .nav-item / .category-item "recent items"
+   pattern elsewhere in the app) rather than individually boxed/shadowed
+   cards — a hover fill is enough to separate rows. Each row is two zones:
+   entry-info-cell (icon + site/username) on the left, entry-actions
+   (Edit/Delete) on the right — a compact summary only. The password
+   itself is intentionally not shown here; RightSideBar.jsx is still the
+   place to reveal/copy it once an entry is selected. */
+.entry-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 16px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.entry-row:hover {
+  background: var(--purple-50);
+}
+
+.entry-row-editing {
+  background: var(--purple-50);
+}
+
+.entry-site {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.entry-username {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.entry-input {
+  width: 100%;
+  padding: 6px 10px;
+  border: 1px solid var(--border-medium);
+  border-radius: 8px;
+  color: var(--text-primary);
+  background: var(--bg-panel);
+}
+
+.entry-input:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.icon-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  font-size: 0.95rem;
+}
+
+.icon-button:hover {
+  background: var(--purple-100);
+}
+
+.entry-actions {
+  display: flex;
+  justify-content: flex-end;
   gap: 8px;
-  margin: 32px 0 0;
-
-  .logo {
-    height: 18px;
-  }
-
-  a {
-    color: var(--text-h);
-    font-size: 16px;
-    border-radius: 6px;
-    background: var(--social-bg);
-    display: flex;
-    padding: 6px 12px;
-    align-items: center;
-    gap: 8px;
-    text-decoration: none;
-    transition: box-shadow 0.3s;
-
-    &:hover {
-      box-shadow: var(--shadow);
-    }
-    .button-icon {
-      height: 18px;
-      width: 18px;
-    }
-  }
-
-  @media (max-width: 1024px) {
-    margin-top: 20px;
-    flex-wrap: wrap;
-    justify-content: center;
-
-    li {
-      flex: 1 1 calc(50% - 8px);
-    }
-
-    a {
-      width: 100%;
-      justify-content: center;
-      box-sizing: border-box;
-    }
-  }
 }
 
-#spacer {
-  height: 88px;
-  border-top: 1px solid var(--border);
-  @media (max-width: 1024px) {
-    height: 48px;
-  }
+.button-sm {
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  cursor: pointer;
 }
 
-.ticks {
+.button-danger {
+  background: var(--danger-light);
+  color: var(--danger);
+  border: 1px solid transparent;
+}
+
+.button-danger:hover {
+  background: var(--danger);
+  color: white;
+}
+
+/*! UNLOCK SCREEN */
+.unlock-view {
+  width: 100%;
+  min-height: 70vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 0;
+}
+
+.unlock-screen {
+  width: 100%;
+  max-width: 360px;
+  padding: 40px 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  text-align: center;
+}
+
+.unlock-icon-badge {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  background: var(--primary-light);
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  flex-shrink: 0;
+}
+
+.unlock-heading {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.unlock-app-label {
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+.unlock-heading h2 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.unlock-subcopy {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.unlock-field {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-align: left;
+}
+
+.unlock-field label {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.unlock-input-wrapper {
   position: relative;
   width: 100%;
+}
 
-  &::before,
-  &::after {
-    content: '';
-    position: absolute;
-    top: -4.5px;
-    border: 5px solid transparent;
-  }
+.unlock-input-wrapper .unlock-input-icon {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  pointer-events: none;
+  line-height: 1;
+}
 
-  &::before {
-    left: 0;
-    border-left-color: var(--border);
-  }
-  &::after {
-    right: 0;
-    border-right-color: var(--border);
-  }
+.entry-input.unlock-password-input {
+  padding: 11px 16px 11px 44px;
+  border-radius: 10px;
+}
+
+.unlock-actions {
+  width: 100%;
+}
+
+.unlock-submit {
+  width: 100%;
+  padding: 12px 16px;
+  white-space: nowrap;
+}
+
+.unlock-error {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  margin: 0;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: var(--danger-light);
+  color: var(--danger);
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.unlock-trust-copy {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+/*! ACTION BUTTONS ROW */
+.action-buttons-row {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 8px;
+}
+
+/* Slightly tighter than the default .button-primary/.button-secondary
+   padding so all three hero buttons (Add Entry, Generate Password,
+   Lock Vault) fit on one line within the center column without
+   wrapping. */
+.action-buttons-row .button-primary,
+.action-buttons-row .button-secondary {
+  flex: 0 0 auto;
+  padding: 10px 14px;
+}
+
+/*! ADD ENTRY FORM */
+
+.add-entry-form {
+  max-width: 480px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-field label {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.password-field-row {
+  display: flex;
+  gap: 8px;
+}
+
+.password-field-row .entry-input {
+  flex: 1;
+}
+
+.strength-feedback {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.generated-password-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+  background: var(--purple-50);
+  border: 1px solid var(--border-light);
+  border-radius: 10px;
+  font-family: monospace;
+}
+
+.warning-text {
+  color: var(--danger);
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+/*! MAIN CONTENT (entries list) */
+.main-content {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.section-heading {
+  margin: 0;
+  /* index.css's leftover #root { text-align: center } otherwise cascades
+     down and centers this — same reason .unlock-field/.sidebar-field
+     already need their own explicit text-align: left. */
+  text-align: left;
+}
+
+.section-count {
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+/*! CHANGE PASSWORD */
+.change-password-form {
+  max-width: 480px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.entry-info-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.entry-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--primary-light);
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.entry-info-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/*! APP LAYOUT (persistent three-column: nav / content / details) */
+.app-layout {
+  display: flex;
+  /* Outer breathing room so the gradient shows on all four edges
+     instead of the columns sitting flush against the window, plus a
+     matching gap between the three columns so they read as separate
+     floating cards rather than touching panels. */
+  gap: 32px;
+  padding: 32px;
+  /* Stretch (not flex-start) so all three columns share one height —
+     each matches the tallest, instead of sizing to its own content. */
+  align-items: stretch;
+}
+
+.center-column {
+  flex: 1;
+  /* min-width: 0 overrides the flex default of min-width: auto, which
+     otherwise sizes this column to its content's intrinsic width (the
+     pill-shaped search input) and lets it push past the space the
+     32px gap/padding above reserve for the sidebars — the cause of
+     the search bar clipping into the right panel. */
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+/*! SIDEBAR NAV */
+.sidebar-nav {
+  width: 220px;
+  flex-shrink: 0;
+  padding: 20px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  background: var(--bg-sidebar);
+  border: 1px solid var(--border-light);
+  position: sticky;
+  top: 32px;
+}
+
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sidebar-brand-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--primary-light);
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.sidebar-brand h1 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.sidebar-nav-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  border: none;
+  background: none;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+}
+
+.sidebar-categories {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sidebar-section-label {
+  padding: 0 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+}
+
+.sidebar-categories-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.category-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+}
+
+.category-item-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.category-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.category-count {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.sidebar-footer {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-light);
+}
+
+/*! RIGHT SIDEBAR */
+.right-sidebar {
+  width: 320px;
+  flex-shrink: 0;
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-light);
+  position: sticky;
+  top: 32px;
+}
+
+.sidebar-empty-state {
+  margin: 0;
+  padding: 8px 0;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.sidebar-field-box {
+  display: flex;
+  align-items: center;
+  padding: 10px 14px;
+  border: 1px solid var(--border-light);
+  border-radius: 10px;
+  background: var(--bg-panel);
+}
+
+.sidebar-field-box span {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: left;
+}
+
+.strength-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+  padding: 0 14px;
+}
+
+.strength-bar-track {
+  flex: 1;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--border-light);
+  overflow: hidden;
+}
+
+.strength-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.2s ease;
+}
+
+.strength-bar-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sidebar-header h2 {
+  margin: 0;
+  word-break: break-word;
+}
+
+.sidebar-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.sidebar-field label {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  text-align: left;
+}
+
+.sidebar-field-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--text-primary);
+}
+
+.sidebar-actions {
+  display: flex;
+  gap: 8px;
 }
