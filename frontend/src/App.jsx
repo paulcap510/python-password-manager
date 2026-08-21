@@ -17,6 +17,7 @@ function App() {
   const [activeForm, setActiveForm] = useState(null);
   const [selectedEntryId, setSelectedEntryId] = useState(null);
   const [editRequestId, setEditRequestId] = useState(0);
+  const [autoLockSeconds, setAutoLockSeconds] = useState(20);
 
   const filteredEntries = currentEntries.filter((entry) => {
     const query = searchQuery.toLowerCase();
@@ -32,6 +33,12 @@ function App() {
     null;
 
   useEffect(() => {
+    window.pywebview.api.get_settings().then((settings) => {
+      setAutoLockSeconds(settings.auto_lock_seconds);
+    });
+  }, []);
+
+  useEffect(() => {
     let lockTimer = null;
 
     const resetLockTimer = () => {
@@ -42,18 +49,19 @@ function App() {
         setIsUnlocked(false);
         setSelectedEntryId(null);
         setOutput('Vault auto-locked due to inactivity');
-      }, 20000);
+      }, autoLockSeconds * 1000);
     };
 
     document.addEventListener('click', resetLockTimer);
     document.addEventListener('keydown', resetLockTimer);
+    resetLockTimer();
 
     return () => {
       document.removeEventListener('click', resetLockTimer);
       document.removeEventListener('keydown', resetLockTimer);
       if (lockTimer) clearTimeout(lockTimer);
     };
-  }, []);
+  }, [autoLockSeconds]);
 
   const handleEditEntry = (entry) => {
     setSelectedEntryId(entry.id);
@@ -186,7 +194,11 @@ function App() {
             />
           </div>
           {activeForm === 'settings' && (
-            <SettingsModal onClose={() => setActiveForm(null)} />
+            <SettingsModal
+              onClose={() => setActiveForm(null)}
+              autoLockSeconds={autoLockSeconds}
+              onAutoLockSecondsChange={setAutoLockSeconds}
+            />
           )}
         </>
       )}

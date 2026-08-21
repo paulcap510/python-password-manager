@@ -16,6 +16,14 @@ import secrets
 import string
 
 VAULT_FILE = "vault.dat"
+
+DEFAULT_SETTINGS = {
+    "clipboard_clear_seconds": 5,
+    "default_password_length": 16,
+    "auto_lock_seconds": 20,
+}
+SETTINGS_FILE = "settings.json"
+
 SALT_SIZE = 16
 NONCE_SIZE = 12
 
@@ -36,9 +44,31 @@ def secure_file_permissions():
     os.chmod(VAULT_FILE, 0o600)
 
 
+def load_settings(file_path=SETTINGS_FILE):
+    if not os.path.exists(file_path):
+        return DEFAULT_SETTINGS.copy()
+    try:
+        with open(file_path, "r", encoding="utf-8") as file:
+            saved_settings = json.load(file)
+        return {**DEFAULT_SETTINGS, **saved_settings}
+    except json.JSONDecodeError:
+        return DEFAULT_SETTINGS.copy()
+
+
+def save_settings(settings, file_path=SETTINGS_FILE):
+    with open(file_path, "w", encoding="utf-8") as file:
+        json.dump(settings, file, indent=2)
+
+
 class Api:
+    def __init__(self):
+        self.settings = load_settings()
+
     def _is_unlocked(self):
         return hasattr(self, "key")
+
+    def get_settings(self):
+        return self.settings
 
     def change_master_password(self, password):
 
@@ -316,9 +346,10 @@ class Api:
             return {"message": "Nothing to copy"}
 
         pyperclip.copy(text)
+        clear_seconds = self.settings["clipboard_clear_seconds"]
 
         def clear_later():
-            time.sleep(5)
+            time.sleep(clear_seconds)
             if pyperclip.paste() == text:
                 pyperclip.copy("")
 
@@ -350,6 +381,16 @@ class Api:
 
         alphabet = string.ascii_letters + string.digits + "!@#$%^&*()-_=+"
         return {"password": "".join(secrets.choice(alphabet) for _ in range(length))}
+
+    def update_setting(self, name, value):
+        self.settings[name] = value
+        save_settings(self.settings)
+
+        return {
+            "message": "Setting updated",
+            "settings": self.settings,
+            "success": True,
+        }
 
 
 api = Api()

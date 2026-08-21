@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 const STRENGTH_LABELS = ['Very Weak', 'Weak', 'Fair', 'Good', 'Strong'];
 
@@ -9,6 +9,13 @@ function AddEntryForm({ entries, onEntriesChange, onOutput, onSuccessClose }) {
   const [passwordStrength, setPasswordStrength] = useState('');
   const [generatedPassword, setGeneratedPassword] = useState('');
   const [showGeneratedPassword, setShowGeneratedPassword] = useState(false);
+  const [defaultPasswordLength, setDefaultPasswordLength] = useState(16);
+
+  useEffect(() => {
+    window.pywebview.api.get_settings().then((settings) => {
+      setDefaultPasswordLength(settings.default_password_length);
+    });
+  }, []);
 
   const isDuplicate = entries.some(
     (entry) =>
@@ -48,7 +55,9 @@ function AddEntryForm({ entries, onEntriesChange, onOutput, onSuccessClose }) {
   };
 
   const handleGeneratePassword = async () => {
-    const result = await window.pywebview.api.generate_password();
+    const result = await window.pywebview.api.generate_password(
+      defaultPasswordLength,
+    );
     setGeneratedPassword(result.password);
     setShowGeneratedPassword(true);
   };

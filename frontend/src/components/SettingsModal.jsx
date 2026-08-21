@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 function EyeOpenIcon() {
   return (
@@ -38,13 +38,19 @@ function EyeClosedIcon() {
   );
 }
 
-function SettingsModal({ onClose }) {
+function SettingsModal({ onClose, autoLockSeconds, onAutoLockSecondsChange }) {
   const [newMasterPassword, setNewMasterPassword] = useState('');
   const [clipboardSeconds, setClipboardSeconds] = useState(5);
   const [passwordLength, setPasswordLength] = useState(16);
   const [message, setMessage] = useState('');
   const [showMasterPassword, setShowMasterPassword] = useState(false);
 
+  useEffect(() => {
+    window.pywebview.api.get_settings().then((settings) => {
+      setClipboardSeconds(settings.clipboard_clear_seconds);
+      setPasswordLength(settings.default_password_length);
+    });
+  }, []);
   const handleChangeMasterPassword = async () => {
     if (!newMasterPassword) {
       setMessage('Please enter a new master password.');
@@ -117,6 +123,31 @@ function SettingsModal({ onClose }) {
               Update Password
             </button>
           </div>
+
+          <div className="settings-field">
+            <label htmlFor="auto-lock-time">Auto-lock vault after</label>
+
+            <select
+              id="auto-lock-time"
+              value={autoLockSeconds}
+              onChange={async (e) => {
+                const newValue = Number(e.target.value);
+
+                onAutoLockSecondsChange(newValue);
+
+                await window.pywebview.api.update_setting(
+                  'auto_lock_seconds',
+                  newValue,
+                );
+              }}
+            >
+              <option value={20}>20 seconds</option>
+              <option value={60}>1 minute</option>
+              <option value={300}>5 minutes</option>
+              <option value={600}>10 minutes</option>
+              <option value={1800}>30 minutes</option>
+            </select>
+          </div>
         </div>
 
         <div className="settings-section">
@@ -128,7 +159,16 @@ function SettingsModal({ onClose }) {
             <select
               id="clipboard-time"
               value={clipboardSeconds}
-              onChange={(e) => setClipboardSeconds(Number(e.target.value))}
+              onChange={async (e) => {
+                const newValue = Number(e.target.value);
+
+                setClipboardSeconds(newValue);
+
+                await window.pywebview.api.update_setting(
+                  'clipboard_clear_seconds',
+                  newValue,
+                );
+              }}
             >
               <option value={5}>5 seconds</option>
               <option value={15}>15 seconds</option>
@@ -151,7 +191,16 @@ function SettingsModal({ onClose }) {
               min="8"
               max="128"
               value={passwordLength}
-              onChange={(e) => setPasswordLength(Number(e.target.value))}
+              onChange={async (e) => {
+                const newValue = Number(e.target.value);
+
+                setPasswordLength(newValue);
+
+                await window.pywebview.api.update_setting(
+                  'default_password_length',
+                  newValue,
+                );
+              }}
             />
           </div>
         </div>
