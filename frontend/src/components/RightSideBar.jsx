@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { copyToClipboard } from '../utils/clipboard';
-import { getCategoryInfo } from '../constants/categories';
+import { CATEGORIES, getCategoryInfo } from '../constants/categories';
 
 const STRENGTH_LABELS = ['Very Weak', 'Weak', 'Fair', 'Good', 'Strong'];
 
@@ -226,10 +226,12 @@ function RightSideBar({ entry, onEntriesChange }) {
               onChange={(e) => setEditCategory(e.target.value)}
             >
               <option value=""></option>
-              <option value="Work">Work</option>
-              <option value="Personal">Personal</option>
-              <option value="Finance">Finance</option>
-              <option value="Other">Other</option>
+
+              {CATEGORIES.map((category) => (
+                <option key={category.name} value={category.name}>
+                  {category.name}
+                </option>
+              ))}
             </select>
           </div>
         )}

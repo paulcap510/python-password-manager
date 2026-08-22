@@ -55,6 +55,18 @@
   --finance: #e7a33b;
   --finance-bg: #fff0d8;
 
+  --commerce: #d24f87;
+  --commerce-bg: #fce5ef;
+
+  --category-social: #168f8a;
+  --category-social-bg: #ddf5f3;
+
+  --entertainment: #df5d51;
+  --entertainment-bg: #ffe7e3;
+
+  --travel: #1685b8;
+  --travel-bg: #def3fc;
+
   --notes: #895eea;
   --notes-bg: #eee5ff;
 }

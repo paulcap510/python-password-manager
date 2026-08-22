@@ -18,6 +18,30 @@ export const CATEGORIES = [
     bgVar: '--finance-bg',
   },
   {
+    name: 'Commerce',
+    icon: '🛒',
+    colorVar: '--commerce',
+    bgVar: '--commerce-bg',
+  },
+  {
+    name: 'Social',
+    icon: '💬',
+    colorVar: '--category-social',
+    bgVar: '--category-social-bg',
+  },
+  {
+    name: 'Entertainment',
+    icon: '▶️',
+    colorVar: '--entertainment',
+    bgVar: '--entertainment-bg',
+  },
+  {
+    name: 'Travel',
+    icon: '✈️',
+    colorVar: '--travel',
+    bgVar: '--travel-bg',
+  },
+  {
     name: 'Other',
     icon: '🏷️',
     colorVar: '--notes',

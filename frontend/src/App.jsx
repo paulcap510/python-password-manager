@@ -94,6 +94,7 @@ function App() {
         <>
           <div className="app-layout">
             <SidebarNav
+              entries={currentEntries}
               onLock={handleLock}
               onOpenSettings={() =>
                 setActiveForm(activeForm === 'settings' ? null : 'settings')

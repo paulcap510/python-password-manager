@@ -1,6 +1,6 @@
 import { CATEGORIES } from '../constants/categories';
 
-function SidebarNav({ onLock, onOpenSettings, settingsActive }) {
+function SidebarNav({ entries = [], onLock, onOpenSettings, settingsActive }) {
   return (
     <nav className="sidebar-nav card">
       <div className="sidebar-brand">
@@ -25,24 +25,32 @@ function SidebarNav({ onLock, onOpenSettings, settingsActive }) {
       <div className="sidebar-categories">
         <div className="sidebar-section-label">Categories</div>
         <div className="sidebar-categories-list">
-          {CATEGORIES.map((category) => (
-            <div key={category.name} className="category-item">
-              <span className="category-item-label">
-                <span
-                  className="category-icon-box"
-                  style={{
-                    '--category-bg': `var(${category.bgVar})`,
-                    '--category-color': `var(${category.colorVar})`,
-                  }}
-                  aria-hidden="true"
-                >
-                  {category.icon}
+          {CATEGORIES.map((category) => {
+            const count = entries.filter(
+              (entry) => entry.category === category.name,
+            ).length;
+
+            return (
+              <div key={category.name} className="category-item">
+                <span className="category-item-label">
+                  <span
+                    className="category-icon-box"
+                    style={{
+                      '--category-bg': `var(${category.bgVar})`,
+                      '--category-color': `var(${category.colorVar})`,
+                    }}
+                    aria-hidden="true"
+                  >
+                    {category.icon}
+                  </span>
+
+                  {category.name}
                 </span>
-                {category.name}
-              </span>
-              <span className="category-count">0</span>
-            </div>
-          ))}
+
+                <span className="category-count">{count}</span>
+              </div>
+            );
+          })}
         </div>
       </div>
 
