@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { copyToClipboard } from '../utils/clipboard';
+import { CATEGORIES, getCategoryInfo } from '../constants/categories';
 
 const STRENGTH_LABELS = ['Very Weak', 'Weak', 'Fair', 'Good', 'Strong'];
 
@@ -51,8 +52,23 @@ function RightSideBar({ entry, onEntriesChange }) {
   const [editSite, setEditSite] = useState('');
   const [editUsername, setEditUsername] = useState('');
   const [editPassword, setEditPassword] = useState('');
+  const [editCategory, setEditCategory] = useState('');
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  const previousEntryId = useRef(entry?.id);
+
+  if (previousEntryId.current !== entry?.id) {
+    previousEntryId.current = entry?.id;
+    setIsEditing(false);
+    setRevealed(false);
+    setEditSite('');
+    setEditUsername('');
+    setEditPassword('');
+    setEditCategory('');
+  }
+
+  const categoryInfo = entry ? getCategoryInfo(entry.category) : null;
 
   useEffect(() => {
     if (!entry) return;
@@ -80,6 +96,7 @@ function RightSideBar({ entry, onEntriesChange }) {
       editSite,
       editUsername,
       editPassword,
+      editCategory,
     );
 
     if (result.success) {
@@ -102,6 +119,7 @@ function RightSideBar({ entry, onEntriesChange }) {
     setEditSite(entry.site);
     setEditUsername(entry.username);
     setEditPassword(entry.password);
+    setEditCategory(entry.category ?? '');
     setRevealed(false);
     setIsEditing(false);
   };
@@ -110,6 +128,7 @@ function RightSideBar({ entry, onEntriesChange }) {
     setEditSite(entry.site);
     setEditUsername(entry.username);
     setEditPassword(entry.password);
+    setEditCategory(entry.category ?? '');
     setRevealed(false);
     setIsEditing(true);
   };
@@ -130,9 +149,20 @@ function RightSideBar({ entry, onEntriesChange }) {
         <div className="sidebar-header">
           <div className="entry-icon">{entry.site.charAt(0).toUpperCase()}</div>
 
-          <div>
+          <div className="sidebar-header-content">
             <h2>{entry.site}</h2>
-            <p className="sidebar-subtext">{entry.username}</p>
+
+            {categoryInfo && (
+              <span
+                className="category-badge"
+                style={{
+                  '--category-bg': `var(${categoryInfo.bgVar})`,
+                  '--category-color': `var(${categoryInfo.colorVar})`,
+                }}
+              >
+                {entry.category}
+              </span>
+            )}
           </div>
         </div>
 
@@ -186,6 +216,26 @@ function RightSideBar({ entry, onEntriesChange }) {
           )}
         </div>
 
+        {isEditing && (
+          <div className="sidebar-field">
+            <label>Category</label>
+
+            <select
+              className="entry-input"
+              value={editCategory}
+              onChange={(e) => setEditCategory(e.target.value)}
+            >
+              <option value=""></option>
+
+              {CATEGORIES.map((category) => (
+                <option key={category.name} value={category.name}>
+                  {category.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
         <div className="sidebar-field">
           <label>Password</label>
 
@@ -197,6 +247,7 @@ function RightSideBar({ entry, onEntriesChange }) {
                 value={editPassword}
                 onChange={(e) => setEditPassword(e.target.value)}
               />
+
               <button
                 type="button"
                 className="icon-button"
@@ -205,13 +256,6 @@ function RightSideBar({ entry, onEntriesChange }) {
               >
                 {revealed ? <EyeClosedIcon /> : <EyeOpenIcon />}
               </button>
-              {/* <button
-                type="button"
-                className="icon-button"
-                onClick={() => setRevealed((current) => !current)}
-              >
-                {revealed ? 'Hide' : 'Show'}
-              </button> */}
             </div>
           ) : (
             <div className="sidebar-field-box">

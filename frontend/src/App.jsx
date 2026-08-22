@@ -1,11 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import UnlockScreen from './components/UnlockScreen';
 import AddEntryForm from './components/AddEntryForm';
 import EntryTable from './components/EntryTable';
-// import ChangePasswordForm from './components/ChangePasswordForm';
 import RightSideBar from './components/RightSideBar';
 import SidebarNav from './components/SidebarNav';
 import SettingsModal from './components/SettingsModal';
+import OverviewPanel from './components/OverviewPanel';
 import './App.css';
 import heroImage from './assets/hero-safe.png';
 
@@ -16,15 +16,25 @@ function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeForm, setActiveForm] = useState(null);
   const [selectedEntryId, setSelectedEntryId] = useState(null);
-  const [editRequestId, setEditRequestId] = useState(0);
   const [autoLockSeconds, setAutoLockSeconds] = useState(20);
+  const searchInputRef = useRef(null);
+
+  // overview
+  const [showOverview, setShowOverview] = useState(false);
+
+  const [activeFilter, setActiveFilter] = useState('all');
 
   const filteredEntries = currentEntries.filter((entry) => {
     const query = searchQuery.toLowerCase();
-    return (
+    const matchesSearch =
       entry.site.toLowerCase().includes(query) ||
-      entry.username.toLowerCase().includes(query)
-    );
+      entry.username.toLowerCase().includes(query);
+    const matchesFilter =
+      activeFilter === 'all' ||
+      (activeFilter === 'favorites' && entry.favorite === true) ||
+      entry.category === activeFilter;
+
+    return matchesSearch && matchesFilter;
   });
 
   const selectedEntry =
@@ -63,10 +73,10 @@ function App() {
     };
   }, [autoLockSeconds]);
 
-  const handleEditEntry = (entry) => {
-    setSelectedEntryId(entry.id);
-    setEditRequestId((id) => id + 1);
-  };
+  // const handleEditEntry = (entry) => {
+  //   setSelectedEntryId(entry.id);
+  //   setEditRequestId((id) => id + 1);
+  // };
 
   const handleLock = async () => {
     await window.pywebview.api.lock();
@@ -94,6 +104,11 @@ function App() {
         <>
           <div className="app-layout">
             <SidebarNav
+              entries={currentEntries}
+              activeFilter={activeFilter}
+              onFilterChange={setActiveFilter}
+              onOpenOverview={() => setShowOverview((current) => !current)}
+              overviewActive={showOverview}
               onLock={handleLock}
               onOpenSettings={() =>
                 setActiveForm(activeForm === 'settings' ? null : 'settings')
@@ -108,12 +123,26 @@ function App() {
                     🔍
                   </span>
                   <input
+                    ref={searchInputRef}
                     type="text"
                     className="entry-input search-input"
                     placeholder="Search vault..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
+                  {searchQuery && (
+                    <button
+                      type="button"
+                      className="icon-button search-clear-button"
+                      onClick={() => {
+                        setSearchQuery('');
+                        searchInputRef.current?.focus();
+                      }}
+                      aria-label="Clear search"
+                    >
+                      ×
+                    </button>
+                  )}
                 </div>
               </div>
 
@@ -159,14 +188,6 @@ function App() {
                 />
               )}
 
-              {/* {activeForm === 'password' && (
-              <ChangePasswordForm
-                onEntriesChange={setCurrentEntries}
-                onOutput={setOutput}
-                onSuccessClose={() => setActiveForm(null)}
-              />
-            )} */}
-
               <div className="main-content card">
                 <h2 className="section-heading">
                   Entries{' '}
@@ -175,13 +196,17 @@ function App() {
                   </span>
                 </h2>
                 <div id="entriesList">
-                  <EntryTable
-                    entries={filteredEntries}
-                    onSelectEntry={(entry) => setSelectedEntryId(entry.id)}
-                    onEditEntry={handleEditEntry}
-                    onEntriesChange={setCurrentEntries}
-                    onOutput={setOutput}
-                  />
+                  {searchQuery && filteredEntries.length === 0 ? (
+                    <p className="empty-state-message">
+                      No entries match '{searchQuery}'
+                    </p>
+                  ) : (
+                    <EntryTable
+                      entries={filteredEntries}
+                      onSelectEntry={(entry) => setSelectedEntryId(entry.id)}
+                      onEntriesChange={setCurrentEntries}
+                    />
+                  )}
                 </div>
               </div>
             </div>
@@ -189,8 +214,6 @@ function App() {
             <RightSideBar
               entry={selectedEntry}
               onEntriesChange={setCurrentEntries}
-              onOutput={setOutput}
-              editRequestId={editRequestId}
             />
           </div>
           {activeForm === 'settings' && (
@@ -198,6 +221,17 @@ function App() {
               onClose={() => setActiveForm(null)}
               autoLockSeconds={autoLockSeconds}
               onAutoLockSecondsChange={setAutoLockSeconds}
+            />
+          )}
+
+          {showOverview && (
+            <OverviewPanel
+              onClose={() => setShowOverview(false)}
+              onSelectEntry={(entryId) => {
+                setSelectedEntryId(entryId);
+                setShowOverview(false);
+              }}
+              entries={currentEntries}
             />
           )}
         </>
