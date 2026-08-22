@@ -258,6 +258,10 @@ class Api:
             "Work",
             "Personal",
             "Finance",
+            "Commerce",
+            "Social",
+            "Entertainment",
+            "Travel",
             "Other",
         ]:
             return {
@@ -314,7 +318,7 @@ class Api:
             "success": True,
         }
 
-    def add_entry(self, site, username, password, category=None):
+    def add_entry(self, site, username, password, category=None, favorite=False):
         if not self._is_unlocked():
             return {
                 "message": "Please unlock the vault first",
@@ -438,6 +442,47 @@ class Api:
         return {
             "message": "Setting updated",
             "settings": self.settings,
+            "success": True,
+        }
+
+    def toggle_favorite(self, entry_id):
+        if not self._is_unlocked():
+            return {
+                "message": "Please unlock the vault first",
+                "entries": [],
+                "success": False,
+            }
+
+        for entry in self.entries:
+            if entry["id"] == entry_id:
+                entry["favorite"] = not entry.get("favorite", False)
+                break
+        else:
+            return {
+                "message": "Entry not found",
+                "entries": self.entries,
+                "success": False,
+            }
+
+        aesgcm = AESGCM(self.key)
+        nonce = os.urandom(NONCE_SIZE)
+
+        new_plaintext = json.dumps(self.entries).encode()
+        encrypted = aesgcm.encrypt(nonce, new_plaintext, None)
+
+        with open(VAULT_FILE, "rb") as f:
+            salt = f.read(SALT_SIZE)
+
+        with open(VAULT_FILE, "wb") as f:
+            f.write(salt)
+            f.write(nonce)
+            f.write(encrypted)
+
+        secure_file_permissions()
+
+        return {
+            "message": "Favorite updated",
+            "entries": self.entries,
             "success": True,
         }
 

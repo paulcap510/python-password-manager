@@ -1,6 +1,6 @@
 import { getCategoryInfo } from '../constants/categories';
 
-function EntryTable({ entries, onSelectEntry }) {
+function EntryTable({ entries, onSelectEntry, onEntriesChange }) {
   return (
     <div className="entry-table">
       {entries.map((entry) => {
@@ -39,13 +39,23 @@ function EntryTable({ entries, onSelectEntry }) {
 
             <button
               type="button"
-              className="button-secondary button-sm"
-              onClick={(e) => {
+              className={`favorite-button${entry.favorite ? ' active' : ''}`}
+              onClick={async (e) => {
                 e.stopPropagation();
-                onSelectEntry(entry);
+
+                const result = await window.pywebview.api.toggle_favorite(
+                  entry.id,
+                );
+
+                if (result.success) {
+                  onEntriesChange(result.entries);
+                }
               }}
+              aria-label={
+                entry.favorite ? 'Remove from favorites' : 'Add to favorites'
+              }
             >
-              View
+              {entry.favorite ? '★' : '☆'}
             </button>
           </div>
         );
