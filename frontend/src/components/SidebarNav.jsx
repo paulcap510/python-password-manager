@@ -1,9 +1,4 @@
-const CATEGORIES = [
-  { name: 'Work', colorVar: '--work' },
-  { name: 'Personal', colorVar: '--personal' },
-  { name: 'Finance', colorVar: '--finance' },
-  { name: 'Secure Notes', colorVar: '--notes' },
-];
+import { CATEGORIES } from '../constants/categories';
 
 function SidebarNav({ onLock, onOpenSettings, settingsActive }) {
   return (
@@ -34,10 +29,15 @@ function SidebarNav({ onLock, onOpenSettings, settingsActive }) {
             <div key={category.name} className="category-item">
               <span className="category-item-label">
                 <span
-                  className="category-dot"
-                  style={{ background: `var(${category.colorVar})` }}
+                  className="category-icon-box"
+                  style={{
+                    '--category-bg': `var(${category.bgVar})`,
+                    '--category-color': `var(${category.colorVar})`,
+                  }}
                   aria-hidden="true"
-                />
+                >
+                  {category.icon}
+                </span>
                 {category.name}
               </span>
               <span className="category-count">0</span>

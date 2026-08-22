@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { CATEGORIES } from '../constants/categories';
 
 const STRENGTH_LABELS = ['Very Weak', 'Weak', 'Fair', 'Good', 'Strong'];
 
@@ -10,6 +11,7 @@ function AddEntryForm({ entries, onEntriesChange, onOutput, onSuccessClose }) {
   const [generatedPassword, setGeneratedPassword] = useState('');
   const [showGeneratedPassword, setShowGeneratedPassword] = useState(false);
   const [defaultPasswordLength, setDefaultPasswordLength] = useState(16);
+  const [category, setCategory] = useState('');
 
   useEffect(() => {
     window.pywebview.api.get_settings().then((settings) => {
@@ -24,9 +26,12 @@ function AddEntryForm({ entries, onEntriesChange, onOutput, onSuccessClose }) {
 
   const checkPasswordStrength = async (value) => {
     const result = await window.pywebview.api.check_password_strength(value);
+
     setPasswordStrength(
       value
-        ? `${STRENGTH_LABELS[result.score]}${result.feedback ? ' — ' + result.feedback : ''}`
+        ? `${STRENGTH_LABELS[result.score]}${
+            result.feedback ? ' — ' + result.feedback : ''
+          }`
         : '',
     );
   };
@@ -38,17 +43,26 @@ function AddEntryForm({ entries, onEntriesChange, onOutput, onSuccessClose }) {
   };
 
   const handleAddEntry = async () => {
+    if (!category) {
+      onOutput('Please select a category');
+      return;
+    }
+
     const result = await window.pywebview.api.add_entry(
       site,
       username,
       password,
+      category,
     );
+
     onOutput(result.message);
     onEntriesChange(result.entries);
+
     if (result.success) {
       setSite('');
       setUsername('');
       setPassword('');
+      setCategory('');
       setPasswordStrength('');
       onSuccessClose?.();
     }
@@ -58,6 +72,7 @@ function AddEntryForm({ entries, onEntriesChange, onOutput, onSuccessClose }) {
     const result = await window.pywebview.api.generate_password(
       defaultPasswordLength,
     );
+
     setGeneratedPassword(result.password);
     setShowGeneratedPassword(true);
   };
@@ -71,8 +86,10 @@ function AddEntryForm({ entries, onEntriesChange, onOutput, onSuccessClose }) {
   return (
     <div className="add-entry-form card">
       <h2>Add New Entry</h2>
+
       <div className="form-field">
         <label htmlFor="entry-site">Site:</label>
+
         <input
           type="text"
           id="entry-site"
@@ -82,8 +99,10 @@ function AddEntryForm({ entries, onEntriesChange, onOutput, onSuccessClose }) {
           onChange={(e) => setSite(e.target.value)}
         />
       </div>
+
       <div className="form-field">
         <label htmlFor="entry-username">Username:</label>
+
         <input
           type="text"
           id="entry-username"
@@ -93,8 +112,10 @@ function AddEntryForm({ entries, onEntriesChange, onOutput, onSuccessClose }) {
           onChange={(e) => setUsername(e.target.value)}
         />
       </div>
+
       <div className="form-field">
         <label htmlFor="entry-password">Password:</label>
+
         <div className="password-field-row">
           <input
             type="password"
@@ -104,6 +125,7 @@ function AddEntryForm({ entries, onEntriesChange, onOutput, onSuccessClose }) {
             value={password}
             onChange={handlePasswordChange}
           />
+
           <button
             type="button"
             className="button-secondary button-sm"
@@ -112,14 +134,35 @@ function AddEntryForm({ entries, onEntriesChange, onOutput, onSuccessClose }) {
             Generate Password
           </button>
         </div>
+
         <p id="passwordStrength" className="strength-feedback">
           {passwordStrength}
         </p>
       </div>
 
+      <div className="form-field">
+        <label htmlFor="entry-category">Category:</label>
+
+        <select
+          id="entry-category"
+          className="entry-input"
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+        >
+          <option value="">Select a category</option>
+
+          {CATEGORIES.map((category) => (
+            <option key={category.name} value={category.name}>
+              {category.name}
+            </option>
+          ))}
+        </select>
+      </div>
+
       {showGeneratedPassword && (
         <div id="generatedPasswordDisplay" className="generated-password-box">
           <span id="generatedPasswordText">{generatedPassword}</span>
+
           <button
             type="button"
             className="button-primary button-sm"
@@ -133,6 +176,7 @@ function AddEntryForm({ entries, onEntriesChange, onOutput, onSuccessClose }) {
       <button type="button" className="button-primary" onClick={handleAddEntry}>
         Add Entry
       </button>
+
       <p id="duplicateWarning" className="warning-text">
         {isDuplicate
           ? 'An entry for this site and username already exists'
