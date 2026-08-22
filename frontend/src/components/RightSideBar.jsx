@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { copyToClipboard } from '../utils/clipboard';
 import { getCategoryInfo } from '../constants/categories';
 
@@ -56,6 +56,18 @@ function RightSideBar({ entry, onEntriesChange }) {
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
+  const previousEntryId = useRef(entry?.id);
+
+  if (previousEntryId.current !== entry?.id) {
+    previousEntryId.current = entry?.id;
+    setIsEditing(false);
+    setRevealed(false);
+    setEditSite('');
+    setEditUsername('');
+    setEditPassword('');
+    setEditCategory('');
+  }
+
   const categoryInfo = entry ? getCategoryInfo(entry.category) : null;
 
   useEffect(() => {
@@ -107,7 +119,7 @@ function RightSideBar({ entry, onEntriesChange }) {
     setEditSite(entry.site);
     setEditUsername(entry.username);
     setEditPassword(entry.password);
-    setEditCategory(entry.category);
+    setEditCategory(entry.category ?? '');
     setRevealed(false);
     setIsEditing(false);
   };
@@ -116,7 +128,7 @@ function RightSideBar({ entry, onEntriesChange }) {
     setEditSite(entry.site);
     setEditUsername(entry.username);
     setEditPassword(entry.password);
-    setEditCategory(entry.category);
+    setEditCategory(entry.category ?? '');
     setRevealed(false);
     setIsEditing(true);
   };
@@ -213,6 +225,7 @@ function RightSideBar({ entry, onEntriesChange }) {
               value={editCategory}
               onChange={(e) => setEditCategory(e.target.value)}
             >
+              <option value=""></option>
               <option value="Work">Work</option>
               <option value="Personal">Personal</option>
               <option value="Finance">Finance</option>

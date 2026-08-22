@@ -213,7 +213,14 @@ class Api:
         secure_file_permissions()
         return {"message": "Entry deleted", "entries": self.entries, "success": True}
 
-    def edit_entry(self, entry_id, site=None, username=None, password=None):
+    def edit_entry(
+        self,
+        entry_id,
+        site=None,
+        username=None,
+        password=None,
+        category=None,
+    ):
         if not self._is_unlocked():
             return {
                 "message": "Please unlock the vault first",
@@ -227,12 +234,14 @@ class Api:
                 "entries": self.entries,
                 "success": False,
             }
+
         if username is not None and not username.strip():
             return {
                 "message": "Username cannot be empty",
                 "entries": self.entries,
                 "success": False,
             }
+
         if password is not None and not password:
             return {
                 "message": "Password cannot be empty",
@@ -240,16 +249,40 @@ class Api:
                 "success": False,
             }
 
+        # User chooses no category
+        if category == "":
+            category = None
+
+        # Only validate a category if one is selected
+        if category is not None and category not in [
+            "Work",
+            "Personal",
+            "Finance",
+            "Other",
+        ]:
+            return {
+                "message": "Invalid category",
+                "entries": self.entries,
+                "success": False,
+            }
+
         entry_found = False
+
         for entry in self.entries:
             if entry["id"] == entry_id:
                 entry_found = True
+
                 if site is not None:
                     entry["site"] = site
+
                 if username is not None:
                     entry["username"] = username
+
                 if password is not None:
                     entry["password"] = password
+
+                entry["category"] = category
+
                 break
 
         if not entry_found:
@@ -261,6 +294,7 @@ class Api:
 
         aesgcm = AESGCM(self.key)
         nonce = os.urandom(NONCE_SIZE)
+
         new_plaintext = json.dumps(self.entries).encode()
         encrypted = aesgcm.encrypt(nonce, new_plaintext, None)
 
@@ -271,10 +305,16 @@ class Api:
             f.write(salt)
             f.write(nonce)
             f.write(encrypted)
-        secure_file_permissions()
-        return {"message": "Entry updated", "entries": self.entries, "success": True}
 
-    def add_entry(self, site, username, password):
+        secure_file_permissions()
+
+        return {
+            "message": "Entry updated",
+            "entries": self.entries,
+            "success": True,
+        }
+
+    def add_entry(self, site, username, password, category=None):
         if not self._is_unlocked():
             return {
                 "message": "Please unlock the vault first",
@@ -300,6 +340,8 @@ class Api:
                 "entries": self.entries,
                 "success": False,
             }
+        if category == "":
+            category = None
 
         #! This checks for identical usernames and websites only; addition to FE check
         for entry in self.entries:
@@ -312,7 +354,14 @@ class Api:
 
         entry_id = str(uuid.uuid4())
         self.entries.append(
-            {"id": entry_id, "site": site, "username": username, "password": password}
+            {
+                "id": entry_id,
+                "site": site,
+                "username": username,
+                "password": password,
+                "category": category,
+                "favorite": False,
+            }
         )
         aesgcm = AESGCM(self.key)
         nonce = os.urandom(NONCE_SIZE)

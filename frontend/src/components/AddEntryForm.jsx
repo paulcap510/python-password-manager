@@ -43,11 +43,6 @@ function AddEntryForm({ entries, onEntriesChange, onOutput, onSuccessClose }) {
   };
 
   const handleAddEntry = async () => {
-    if (!category) {
-      onOutput('Please select a category');
-      return;
-    }
-
     const result = await window.pywebview.api.add_entry(
       site,
       username,
